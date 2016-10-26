@@ -27,7 +27,7 @@ CREATE TABLE `apps` (
   `name` varchar(50) NOT NULL DEFAULT '',
   `uid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_name` (`name`(12))
@@ -56,7 +56,7 @@ CREATE TABLE `collaborators` (
   `uid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `roles` varchar(20) NOT NULL DEFAULT '',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_appid` (`appid`),
@@ -89,7 +89,7 @@ CREATE TABLE `deployments` (
   `last_deployment_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `label_id` int(11) unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_appid` (`appid`),
@@ -120,7 +120,7 @@ CREATE TABLE `deployments_versions` (
   `is_mandatory` tinyint(4) NOT NULL DEFAULT '0',
   `current_package_id` int(10) unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_did_appversion` (`deployment_id`,`app_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -155,7 +155,7 @@ CREATE TABLE `packages` (
   `original_label` varchar(20) NOT NULL DEFAULT '',
   `original_deployment` varchar(20) NOT NULL DEFAULT '',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `released_by` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_deploymentid_label` (`deployment_id`,`label`(8))
@@ -185,7 +185,7 @@ CREATE TABLE `packages_diff` (
   `diff_blob_url` varchar(255) NOT NULL DEFAULT '',
   `diff_size` int(11) unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_packageid_hash` (`package_id`,`diff_against_package_hash`(40))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -215,7 +215,7 @@ CREATE TABLE `packages_metrics` (
   `failed` int(10) unsigned NOT NULL DEFAULT '0',
   `installed` int(10) unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `udx_packageid` (`package_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -243,7 +243,7 @@ CREATE TABLE `user_tokens` (
   `tokens` varchar(64) NOT NULL DEFAULT '',
   `created_by` varchar(64) NOT NULL DEFAULT '',
   `description` varchar(64) NOT NULL DEFAULT '',
-  `expires_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `expires_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -275,7 +275,7 @@ CREATE TABLE `users` (
   `email` varchar(100) NOT NULL DEFAULT '',
   `identical` varchar(10) NOT NULL DEFAULT '',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `udx_identical` (`identical`),
   KEY `udx_username` (`username`),
