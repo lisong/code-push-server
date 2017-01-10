@@ -78,6 +78,15 @@ $ vim config/config.js
     bucketName: "",
     downloadUrl: "" //文件下载域名地址
   },
+  //阿里云存储配置 当storageType为oss时需要配置
+  oss: {
+    accessKeyId: "",
+    secretAccessKey: "",
+    endpoint: "",
+    bucketName: "",
+    prefix: "", // 对象Key的前缀，允许放到子文件夹里面
+    downloadUrl: "", // 文件下载域名地址，需要包含前缀
+  },
   //文件存储在本地配置 当storageType为local时需要配置
   local: {
     storageDir: "/Users/tablee/workspaces/storage",
