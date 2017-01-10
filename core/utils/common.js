@@ -114,6 +114,8 @@ common.uploadFileToStorage = function (key, filePath) {
     return common.uploadFileToLocal(key, filePath);
   } else if (_.get(config, 'common.storageType') === 's3') {
     return common.uploadFileToS3(key, filePath);
+  } else if (_.get(config, 'common.storageType') === 'oss') {
+    return common.uploadFileToOSS(key, filePath);
   }
   return common.uploadFileToQiniu(key, filePath);
 };
@@ -151,6 +153,8 @@ common.getDownloadUrl = function () {
     return _.get(config, 'local.downloadUrl');
   } else if (_.get(config, 'common.storageType') === 's3') {
     return _.get(config, 's3.downloadUrl');
+  } else if (_.get(config, 'common.storageType') === 'oss') {
+    return _.get(config, 'oss.downloadUrl');
   }
   return _.get(config, 'qiniu.downloadUrl');
 }
@@ -214,6 +218,31 @@ common.uploadFileToS3 = function (key, filePath) {
       });
     })
   );
+};
+
+common.uploadFileToOSS = function (key, filePath) {
+  var ALY = require('aliyun-sdk');
+  var ossStream = require('aliyun-oss-upload-stream')(new ALY.OSS({
+    accessKeyId:  _.get(config, 'oss.accessKeyId'),
+    secretAccessKey: _.get(config, 'oss.secretAccessKey'),
+    endpoint: _.get(config, 'oss.endpoint'),
+    apiVersion: '2013-10-15',
+  }));
+  var upload = ossStream.upload({
+    Bucket: _.get(config, 'oss.bucketName'),
+    Key: `${_.get(config, 'oss.prefix')}/${key}`,
+  });
+
+  return new Promise(function (resolve, reject) {
+    upload.on('error', function (error) {
+      reject(error);
+    });
+
+    upload.on('uploaded', function (details) {
+      resolve(details.ETag);
+    });
+    fs.createReadStream(filePath).pipe(upload);
+  });
 };
 
 common.diffCollectionsSync = function (collection1, collection2) {
