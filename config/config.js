@@ -22,6 +22,15 @@ config.development = {
     region: process.env.REGION,
     downloadUrl: process.env.DOWNLOAD_URL, // binary files download host address.
   },
+  // Config for Aliyun OSS (https://www.aliyun.com/product/oss) when storageType value is "oss".
+  oss: {
+    accessKeyId: "",
+    secretAccessKey: "",
+    endpoint: "",
+    bucketName: "",
+    prefix: "", // Key prefix in object key
+    downloadUrl: "", // binary files download host address.
+  },
   // Config for local storage when storageType value is "local".
   local: {
     // Binary files storage dir, Do not use tmpdir and it's public download dir.
