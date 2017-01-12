@@ -2,11 +2,11 @@ var config = {};
 config.development = {
   // Config for database, only support mysql.
   db: {
-    username: "root",
-    password: null,
-    database: "codepush",
-    host: "127.0.0.1",
-    port: 3306,
+    username: process.env.RDS_USERNAME || "root",
+    password: process.env.RDS_PASSWORD || null,
+    database: process.env.DATA_BASE || "codepush",
+    host: process.env.RDS_HOST || "127.0.0.1",
+    port: process.env.RDS_PORT || 3306,
     dialect: "mysql"
   },
   // Config for qiniu (http://www.qiniu.com/) cloud storage when storageType value is "qiniu".
@@ -34,16 +34,16 @@ config.development = {
   // Config for local storage when storageType value is "local".
   local: {
     // Binary files storage dir, Do not use tmpdir and it's public download dir.
-    storageDir: "/Users/tablee/workspaces/storage",
+    storageDir: process.env.STORAGE_DIR || "/Users/tablee/workspaces/storage",
     // Binary files download host address which Code Push Server listen to. the files storage in storageDir.
-    downloadUrl: "http://localhost:3000/download",
+    downloadUrl: process.env.LOCAL_DOWNLOAD_URL || "http://localhost:3000/download",
     // public static download spacename.
-    public: '/download'
+    public: process.env.PUBLIC || '/download'
   },
   jwt: {
     // Recommended: 63 random alpha-numeric characters
     // Generate using: https://www.grc.com/passwords.htm
-    tokenSecret: 'INSERT_RANDOM_TOKEN_KEY'
+    tokenSecret: process.env.TOKEN_SECRET ||'INSERT_RANDOM_TOKEN_KEY'
   },
   common: {
     /*
@@ -57,9 +57,9 @@ config.development = {
     // create patch updates's number. default value is 3
     diffNums: 3,
     // data dir for caclulate diff files. it's optimization.
-    dataDir: "/Users/tablee/workspaces/data",
+    dataDir: process.env.DATA_DIR || "/Users/tablee/workspaces/data",
     // storageType which is your binary package files store. options value is ("local" | "qiniu" | "s3")
-    storageType: "local",
+    storageType: process.env.STORAGE_TYPE || "local",
     // options value is (true | false), when it's true, it will cache updateCheck results in redis.
     updateCheckCache: false
   },
