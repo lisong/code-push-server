@@ -16,7 +16,12 @@ var yargs = require('yargs')
         type: 'string'
       }
     })
-    .command('upgrade', '升级数据库')
+    .command('upgrade', '升级数据库', {
+      dbpassword: {
+        alias: 'dbpassword',
+        type: 'string'
+      }
+    })
     .example('$0 init --dbname codepush --dbhost localhost --dbuser root --dbpassword 123456 --dbport 3306 --force', '初始化code-push-server数据库')
     .example('$0 upgrade --dbname codepush --dbhost localhost --dbuser root --dbpassword 123456 --dbport 3306', '升级code-push-server数据库')
     .default({dbname: 'codepush', dbhost: 'localhost', dbuser: 'root', dbpassword: null})
@@ -29,9 +34,6 @@ var dbhost = argv.dbhost ? argv.dbhost : 'localhost';
 var dbuser = argv.dbuser ? argv.dbuser : 'root';
 var dbport = argv.dbport ? argv.dbport : 3306;
 var dbpassword = null;
-if (_.isString(argv.dbpassword) || _.isNumber(argv.dbpassword)) {
-    dbpassword = argv.dbpassword;
-}
 
 if (command === 'init') {
     var connection2;
