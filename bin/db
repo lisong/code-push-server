@@ -10,7 +10,14 @@ var mysql = require('mysql');
 var Promise = require("bluebird");
 var yargs = require('yargs')
     .usage('Usage: $0 <command> [options]')
-    .command('init', '初始化数据库')
+    .command('init', '初始化数据库', {
+      dbpassword: {
+        alias: 'dbpassword',
+        demand: true,
+        type: 'string',
+        default: '123456'
+      }
+    })
     .command('upgrade', '升级数据库')
     .example('$0 init --dbname codepush --dbhost localhost --dbuser root --dbpassword 123456 --dbport 3306 --force', '初始化code-push-server数据库')
     .example('$0 upgrade --dbname codepush --dbhost localhost --dbuser root --dbpassword 123456 --dbport 3306', '升级code-push-server数据库')
