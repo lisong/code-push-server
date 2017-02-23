@@ -13,9 +13,7 @@ var yargs = require('yargs')
     .command('init', '初始化数据库', {
       dbpassword: {
         alias: 'dbpassword',
-        demand: true,
-        type: 'string',
-        default: '123456'
+        type: 'string'
       }
     })
     .command('upgrade', '升级数据库')
