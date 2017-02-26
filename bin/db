@@ -33,7 +33,7 @@ var dbname = argv.dbname ? argv.dbname : 'codepush';
 var dbhost = argv.dbhost ? argv.dbhost : 'localhost';
 var dbuser = argv.dbuser ? argv.dbuser : 'root';
 var dbport = argv.dbport ? argv.dbport : 3306;
-var dbpassword = null;
+var dbpassword = argv.dbpassword;
 
 if (command === 'init') {
     var connection2;
