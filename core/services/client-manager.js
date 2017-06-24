@@ -118,7 +118,7 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash) {
         return models.PackagesDiff.findOne({where: {package_id:packages.id, diff_against_package_hash: packageHash}})
         .then((diffPackage) => {
           if (!_.isEmpty(diffPackage)) {
-            rs.downloadURL = common.getBlobDownloadUrl(_.get(diffPackage, 'diff_blob_url'));
+            rs.downloadUrl = common.getBlobDownloadUrl(_.get(diffPackage, 'diff_blob_url'));
             rs.packageSize = _.get(diffPackage, 'diff_size', 0);
           }
           return;
