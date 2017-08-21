@@ -209,7 +209,7 @@ common.uploadFileToQiniu = function (key, filePath) {
     qiniu.conf.ACCESS_KEY = _.get(config, "qiniu.accessKey");
     qiniu.conf.SECRET_KEY = _.get(config, "qiniu.secretKey");
     var bucket = _.get(config, "qiniu.bucketName", "");
-    var client = new qiniu.rs.Client();
+    var client = new qiniu.rs.BucketManager();
     client.stat(bucket, key, (err, ret) => {
       if (!err) {
         resolve(ret.hash);
