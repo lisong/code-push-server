@@ -200,6 +200,8 @@ common.getBlobDownloadUrl = function (blobUrl) {
     downloadUrl = _.get(config, 's3.downloadUrl');
   } else if (_.get(config, 'common.storageType') === 'oss') {
     downloadUrl = _.get(config, 'oss.downloadUrl');
+  }else if (_.get(config, 'common.storageType') === 'qiniu') {
+    downloadUrl = _.get(config, 'qiniu.downloadUrl');
   }
   return `${downloadUrl}/${fileName}`
 };
