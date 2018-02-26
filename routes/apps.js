@@ -318,7 +318,7 @@ router.post('/:appName/deployments/:deploymentName/release',
     });
   })
   .then((data) => {
-    res.send("");
+    res.send('{"msg": "succeed"}');
   })
   .catch((e) => {
     if (e instanceof AppError.AppError) {
