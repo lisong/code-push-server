@@ -52,7 +52,7 @@
     "fs-extra": "^3.0.1",
     "helmet": "^3.1.0",
     "i18n": "^0.8.3",
-    "jsonwebtoken": "^7.1.7",
+    "jsonwebtoken": "^8.0.0",
     "lodash": "^4.5.1",
     "log4js": "^1.1.0",
     "markdown-it": "^8.0.1",
@@ -69,7 +69,7 @@
     "sequelize": "^4.2.1",
     "serve-favicon": "^2.4.0",
     "slash": "^1.0.0",
-    "validator": "^7.0.0",
+    "validator": "^9.4.1",
     "yargs": "^8.0.2",
     "yazl": "^2.3.0"
   },
