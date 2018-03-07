@@ -35,7 +35,9 @@
     "upgrade": "node ./bin/db upgrade",
     "test": "make test",
     "test-win": "mocha test/api/init test/api/users test/api/auth test/api/account test/api/accessKeys test/api/sessions test/api/apps test/api/index --recursive --timeout 15000",
-    "coverage": "make coverage"
+    "coverage": "make coverage",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "aliyun-oss-upload-stream": "^1.3.0",
@@ -54,7 +56,7 @@
     "i18n": "^0.8.3",
     "jsonwebtoken": "^7.1.7",
     "lodash": "^4.5.1",
-    "log4js": "^1.1.0",
+    "log4js": "^2.0.0",
     "markdown-it": "^8.0.1",
     "moment": "^2.14.1",
     "morgan": "^1.7.0",
@@ -71,7 +73,8 @@
     "slash": "^1.0.0",
     "validator": "^7.0.0",
     "yargs": "^8.0.2",
-    "yazl": "^2.3.0"
+    "yazl": "^2.3.0",
+    "snyk": "^1.42.3"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
@@ -93,5 +96,6 @@
     "app.js",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "snyk": true
 }
