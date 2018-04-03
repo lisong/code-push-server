@@ -31,6 +31,7 @@ proto.parseReqFile = function (req) {
   log.debug('parseReqFile');
   return new Promise((resolve, reject) => {
     var form = new formidable.IncomingForm();
+    form.maxFilesSize = 200 * 1024 * 1024;
     form.parse(req, (err, fields, files) => {
       if (err) {
         log.debug('parseReqFile:', err);
