@@ -7,7 +7,6 @@ var helmet = require('helmet');
 var config = require('./core/config');
 var _ = require('lodash');
 var fs = require('fs');
-
 var routes = require('./routes/index');
 var auth = require('./routes/auth');
 var accessKeys = require('./routes/accessKeys');

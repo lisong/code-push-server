@@ -1,4 +1,4 @@
-var env       = process.env.NODE_ENV || 'development';
+var env = process.env.NODE_ENV || 'development';
 var _    = require('lodash');
 var path = require('path');
 var config = {};
@@ -12,4 +12,5 @@ if (process.env.CONFIG_FILE) {
 log.info(`use config file ${CONFIG_PATH}`)
 log.info(`use env ${env}`)
 config = _.get(require(CONFIG_PATH), env);
+log.info(`load config ${config}`)
 module.exports = config;
