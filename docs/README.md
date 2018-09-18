@@ -181,7 +181,7 @@ $ curl -X PATCH -H "Authorization: Bearer mytoken" -H "Accept: application/json"
 
 ## config react-native project
 
-> Follow the react-native-code-push docs, addition iOS add a new entry named CodePushServerURL, whose value is the key of ourself CodePushServer URL. Andriod use the new CodePush constructor in MainApplication point CodePushServerUrl
+> Follow the react-native-code-push docs, addition iOS add a new entry named CodePushServerURL, whose value is the key of ourself CodePushServer URL. Android use the new CodePush constructor in MainApplication point CodePushServerUrl
 
 iOS eg. in file Info.plist
 

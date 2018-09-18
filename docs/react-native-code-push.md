@@ -52,7 +52,7 @@ $ react-native link react-native-code-push  #连接到项目中，提示输入�
 ```shell
 $ code-push login http://YOUR_CODE_PUSH_SERVER_IP:3000  #浏览器中登录获取token，用户名:admin, 密码:123456
 $ code-push app add CodePushDemoiOS ios react-native #创建iOS版, 获取Production DeploymentKey
-$ code-push app add CodePushDemoAndroid andriod react-native #创建android版，获取获取Production DeploymentKey
+$ code-push app add CodePushDemoAndroid android react-native #创建android版，获取获取Production DeploymentKey
 ```
 
 ## 配置CodePushDemo react-native项目
