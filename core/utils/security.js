@@ -160,6 +160,16 @@ security.calcAllFileSha256 = function (directoryPath) {
           log.debug(`calcAllFileSha256 empty files in directoryPath:`, directoryPath);
           reject(new AppError.AppError("empty files"));
         }else {
+          //筛选掉不用hash计算的文件
+          files = files.filter((file) =>{
+            if ((file.indexOf(".codepushrelease") >= 0)||
+              (file.indexOf(".DS_Store") >= 0)||
+              (file.indexOf("__MACOSX/") >= 0)) {
+              return false;
+            }else{
+              return true;
+            }
+          });
           security.sha256AllFiles(files)
           .then((results) => {
             var data = {};
