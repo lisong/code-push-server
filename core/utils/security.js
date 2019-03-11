@@ -146,6 +146,25 @@ security.uploadPackageType = function (directoryPath) {
   });
 }
 
+// some files are ignored in calc hash in client sdk
+// https://github.com/Microsoft/react-native-code-push/pull/974/files#diff-21b650f88429c071b217d46243875987R15
+security.isHashIgnored = function (relativePath) {
+  if (!relativePath) {
+    return true;
+  }
+
+
+  const IgnoreMacOSX = '__MACOSX/';
+  const IgnoreDSStore = '.DS_Store';
+  const IgnoreCodePushMetadata = '.codepushrelease';
+
+  return relativePath.startsWith(IgnoreMacOSX)
+    || relativePath === IgnoreDSStore
+    || relativePath.endsWith(IgnoreDSStore)
+    || relativePath === IgnoreCodePushMetadata
+    || relativePath.endsWith(IgnoreCodePushMetadata);
+}
+
 security.calcAllFileSha256 = function (directoryPath) {
   return new Promise((resolve, reject) => {
     var recursive = require("recursive-readdir");
@@ -156,6 +175,12 @@ security.calcAllFileSha256 = function (directoryPath) {
         log.error(error);
         reject(new AppError.AppError(error.message));
       } else {
+        // filter files that should be ignored
+        files = files.filter((file) => {
+          var relative = path.relative(directoryPath, file);
+          return !security.isHashIgnored(relative);
+        });
+
         if (files.length == 0) {
           log.debug(`calcAllFileSha256 empty files in directoryPath:`, directoryPath);
           reject(new AppError.AppError("empty files"));
