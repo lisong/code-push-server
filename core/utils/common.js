@@ -69,13 +69,13 @@ common.validatorVersion = function (versionNo) {
     flag = true;
     min = data[1] + _.padStart(data[2], 5, '0') + _.padStart(data[3], 10, '0');
     max = _.toString((parseInt(data[1])+1)) + _.padStart(0, 5, '0') + _.padStart('0', 10, '0');
-  } else if (data = versionNo.match(/^([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})-([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})$/)) {
-    // "1.2.3-1.2.7"
+  } else if (data = versionNo.match(/^([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})\s?-\s?([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})$/)) {
+    // "1.2.3 - 1.2.7"
     flag = true;
     min = data[1] + _.padStart(data[2], 5, '0') + _.padStart(data[3], 10, '0');
     max = data[4] + _.padStart(data[5], 5, '0') + _.padStart((parseInt(data[6])+1), 10, '0');
-  } else if (data = versionNo.match(/^>=([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})<([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})$/)) {
-    //">=1.2.3<1.2.7"
+  } else if (data = versionNo.match(/^>=([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})\s?<([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})$/)) {
+    // ">=1.2.3 <1.2.7"
     flag = true;
     min = data[1] + _.padStart(data[2], 5, '0') + _.padStart(data[3], 10, '0');
     max = data[4] + _.padStart(data[5], 5, '0') + _.padStart(data[6], 10, '0');
