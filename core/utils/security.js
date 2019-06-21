@@ -1,4 +1,5 @@
 'use strict';
+var sort = require('stable');
 var bcrypt = require('bcryptjs');
 var crypto = require('crypto');
 var fs = require('fs');
@@ -67,7 +68,7 @@ security.packageHashSync = function (jsonData) {
     return v.path + ':' + v.hash;
   });
   log.debug('packageHashSync manifestData:', manifestData);
-  var manifestString = JSON.stringify(manifestData.sort());
+  var manifestString = JSON.stringify(sort(manifestData));
   manifestString = _.replace(manifestString, /\\\//g, '/');
   log.debug('packageHashSync manifestString:', manifestData);
   return security.stringSha256Sync(manifestString);
