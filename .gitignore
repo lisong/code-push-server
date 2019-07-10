@@ -15,3 +15,6 @@ pids
 node_modules
 
 coverage
+
+# For VS Code local history plugin
+.history

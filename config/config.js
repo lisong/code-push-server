@@ -1,4 +1,5 @@
 var os = require('os');
+var isProduction = process.env.NODE_ENV === 'production';
 
 var config = {};
 config.development = {
@@ -19,6 +20,13 @@ config.development = {
     secretKey: "",
     bucketName: "",
     downloadUrl: "" // Binary files download host address.
+  },
+  // Config for upyun
+  upyun: {
+    serviceName: "",
+    operatorName: "",
+    operatorPass: "",
+    downloadUrl: isProduction ? 'https://your.host.com/rnbundle' : 'https://your.host.com/test/rnbundle',
   },
   // Config for Amazon s3 (https://aws.amazon.com/cn/s3/) storage when storageType value is "s3".
   s3: {
@@ -74,7 +82,7 @@ config.development = {
     // data dir for caclulate diff files. it's optimization.
     dataDir: process.env.DATA_DIR || os.tmpdir(),
     // storageType which is your binary package files store. options value is ("local" | "qiniu" | "s3"| "oss" || "tencentcloud")
-    storageType: process.env.STORAGE_TYPE || "local",
+    storageType: process.env.STORAGE_TYPE || "upyun",
     // options value is (true | false), when it's true, it will cache updateCheck results in redis.
     updateCheckCache: false,
     // options value is (true | false), when it's true, it will cache rollout results in redis
@@ -95,6 +103,7 @@ config.development = {
     default: {
       host: "127.0.0.1",
       port: 6379,
+      // password: "foobared",
       retry_strategy: function (options) {
         if (options.error.code === 'ECONNREFUSED') {
           // End reconnecting on a specific error and flush all commands with a individual error
