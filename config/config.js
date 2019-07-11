@@ -1,5 +1,4 @@
 var os = require('os');
-var isProduction = process.env.NODE_ENV === 'production';
 
 var config = {};
 config.development = {
@@ -104,7 +103,6 @@ config.development = {
     default: {
       host: "127.0.0.1",
       port: 6379,
-      // password: "foobared",
       retry_strategy: function (options) {
         if (options.error.code === 'ECONNREFUSED') {
           // End reconnecting on a specific error and flush all commands with a individual error
