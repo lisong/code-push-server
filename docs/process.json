@@ -9,6 +9,7 @@
             "env" : {
                 "NODE_ENV" : "production",
                 "PORT" : 3000,
+                "RDS_PASSWORD" : "",
                 "CONFIG_FILE" : "../config/config.js",
                 "STORAGE_TYPE" : "upyun",
                 "STORAGE_DIR" : "",
