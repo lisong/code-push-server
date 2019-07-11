@@ -9,7 +9,13 @@
             "env" : {
                 "NODE_ENV" : "production",
                 "PORT" : 3000,
-                "CONFIG_FILE" : "../config/config.js"
+                "CONFIG_FILE" : "../config/config.js",
+                "STORAGE_TYPE" : "upyun",
+                "STORAGE_DIR" : "",
+                "DOWNLOAD_URL" : "",
+                "UPYUN_SERVICE_NAME" : "",
+                "UPYUN_OPERATOR_NAME" : "",
+                "UPYUN_OPERATOR_PASS" : ""
             }
         }
     ]

@@ -23,10 +23,10 @@ config.development = {
   },
   // Config for upyun
   upyun: {
-    serviceName: "",
-    operatorName: "",
-    operatorPass: "",
-    downloadUrl: isProduction ? 'https://your.host.com/rnbundle' : 'https://your.host.com/test/rnbundle',
+    serviceName: process.env.UPYUN_SERVICE_NAME,
+    operatorName: process.env.UPYUN_OPERATOR_NAME,
+    operatorPass: process.env.UPYUN_OPERATOR_PASS,
+    downloadUrl: process.env.DOWNLOAD_URL,
   },
   // Config for Amazon s3 (https://aws.amazon.com/cn/s3/) storage when storageType value is "s3".
   s3: {

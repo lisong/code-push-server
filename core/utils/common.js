@@ -359,11 +359,14 @@ common.uploadFileToUpyun = function (key, filePath) {
   var operatorPass = _.get(config, "upyun.operatorPass", "");
   var service = new upyun.Service(serviceName, operatorName, operatorPass);
   var client = new upyun.Client(service);
-  let isProduction = process.env.NODE_ENV === 'production';
-  let remoteDir = isProduction ? '/rnbundle' : '/test/rnbundle';
+  let remoteDir = process.env.STORAGE_DIR;
   return (
     new Promise((resolve, reject) => {
       client.makeDir(remoteDir).then(result => {
+        if(!remoteDir) {
+          reject(new AppError.AppError('Please config the upyun remote dir!'));
+          return;
+        }
         let remotePath = remoteDir + '/' + key;
         log.debug('uploadFileToUpyun remotePath:', remotePath);
         log.debug('uploadFileToUpyun mkDir result:', result);
