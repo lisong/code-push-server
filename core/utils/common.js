@@ -357,17 +357,17 @@ common.uploadFileToUpyun = function (key, filePath) {
   var serviceName = _.get(config, "upyun.serviceName");
   var operatorName = _.get(config, "upyun.operatorName");
   var operatorPass = _.get(config, "upyun.operatorPass", "");
+  var storageDir = _.get(config, "upyun.storageDir", "");
   var service = new upyun.Service(serviceName, operatorName, operatorPass);
   var client = new upyun.Client(service);
-  let remoteDir = process.env.STORAGE_DIR;
   return (
     new Promise((resolve, reject) => {
-      client.makeDir(remoteDir).then(result => {
-        if(!remoteDir) {
-          reject(new AppError.AppError('Please config the upyun remote dir!'));
+      client.makeDir(storageDir).then(result => {
+        if(!storageDir) {
+          reject(new AppError.AppError('Please config the upyun remoteDir!'));
           return;
         }
-        let remotePath = remoteDir + '/' + key;
+        let remotePath = storageDir + '/' + key;
         log.debug('uploadFileToUpyun remotePath:', remotePath);
         log.debug('uploadFileToUpyun mkDir result:', result);
         client.putFile(remotePath, fs.createReadStream(filePath)).then(data => {
