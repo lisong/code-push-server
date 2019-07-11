@@ -7,6 +7,7 @@ var config    = require('../config');
 var _ = require('lodash');
 var validator = require('validator');
 var qiniu = require("qiniu");
+var upyun = require('upyun');
 var common = {};
 var AppError = require('../app-error');
 var jschardet = require("jschardet");
@@ -225,6 +226,8 @@ common.uploadFileToStorage = function (key, filePath) {
     return common.uploadFileToOSS(key, filePath);
   } else if (storageType === 'qiniu') {
     return common.uploadFileToQiniu(key, filePath);
+  } else if (storageType === 'upyun') {
+    return common.uploadFileToUpyun(key, filePath);
   } else if (storageType === 'tencentcloud') {
     return common.uploadFileToTencentCloud(key, filePath);
   }
@@ -348,6 +351,43 @@ common.uploadFileToQiniu = function (key, filePath) {
       }
     });
   });
+};
+
+common.uploadFileToUpyun = function (key, filePath) {
+  var serviceName = _.get(config, "upyun.serviceName");
+  var operatorName = _.get(config, "upyun.operatorName");
+  var operatorPass = _.get(config, "upyun.operatorPass", "");
+  var storageDir = _.get(config, "upyun.storageDir", "");
+  var service = new upyun.Service(serviceName, operatorName, operatorPass);
+  var client = new upyun.Client(service);
+  return (
+    new Promise((resolve, reject) => {
+      client.makeDir(storageDir).then(result => {
+        if(!storageDir) {
+          reject(new AppError.AppError('Please config the upyun remoteDir!'));
+          return;
+        }
+        let remotePath = storageDir + '/' + key;
+        log.debug('uploadFileToUpyun remotePath:', remotePath);
+        log.debug('uploadFileToUpyun mkDir result:', result);
+        client.putFile(remotePath, fs.createReadStream(filePath)).then(data => {
+          log.debug('uploadFileToUpyun putFile response:', data);
+          if(data) {
+            resolve(key)
+          } else {
+            log.debug('uploadFileToUpyun putFile failed!', data);
+            reject(new AppError.AppError('Upload file to upyun failed!'));
+          }
+        }).catch(e1 => {
+          log.debug('uploadFileToUpyun putFile exception e1:', e1);
+          reject(new AppError.AppError(JSON.stringify(e1)));
+        })
+      }).catch(e => {
+        log.debug('uploadFileToUpyun putFile exception e:', e);
+        reject(new AppError.AppError(JSON.stringify(e)));
+      });
+    })
+  );
 };
 
 common.uploadFileToS3 = function (key, filePath) {
