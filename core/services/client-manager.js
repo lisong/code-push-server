@@ -278,7 +278,7 @@ proto.reportStatusDeploy = function (deploymentKey, label, clientUniqueId, other
           if (_.isEmpty(metrics)) {
             return;
           }
-          if (constConfig.DEPLOYMENT_SUCCEEDED) {
+          if (_.eq(status, constConfig.DEPLOYMENT_SUCCEEDED)) {
             return metrics.increment(['installed', 'active'],{by: 1});
           } else {
             return metrics.increment(['installed', 'failed'],{by: 1});
