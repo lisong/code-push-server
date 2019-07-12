@@ -61,7 +61,9 @@ security.stringSha256Sync = function (contents) {
 
 security.packageHashSync = function (jsonData) {
   var sortedArr = security.sortJsonToArr(jsonData);
-  var manifestData = _.map(sortedArr, (v) => {
+  var manifestData = _.filter(sortedArr, (v) => {
+    return !security.isPackageHashIgnored(v.path);
+  }).map((v) => {
     return v.path + ':' + v.hash;
   });
   log.debug('packageHashSync manifestData:', manifestData);
@@ -153,17 +155,27 @@ security.isHashIgnored = function (relativePath) {
     return true;
   }
 
-
   const IgnoreMacOSX = '__MACOSX/';
   const IgnoreDSStore = '.DS_Store';
-  const IgnoreCodePushMetadata = '.codepushrelease';
 
   return relativePath.startsWith(IgnoreMacOSX)
     || relativePath === IgnoreDSStore
-    || relativePath.endsWith(IgnoreDSStore)
-    || relativePath === IgnoreCodePushMetadata
-    || relativePath.endsWith(IgnoreCodePushMetadata);
+    || relativePath.endsWith(IgnoreDSStore);
 }
+
+security.isPackageHashIgnored = function (relativePath) {
+  if (!relativePath) {
+    return true;
+  }
+
+  // .codepushrelease contains code sign JWT
+  // it should be ignored in package hash but need to be included in package manifest
+  const IgnoreCodePushMetadata = '.codepushrelease';
+  return relativePath === IgnoreCodePushMetadata
+    || relativePath.endsWith(IgnoreCodePushMetadata)
+    || security.isHashIgnored(relativePath);
+}
+
 
 security.calcAllFileSha256 = function (directoryPath) {
   return new Promise((resolve, reject) => {

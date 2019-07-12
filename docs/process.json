@@ -10,6 +10,14 @@
                 "NODE_ENV" : "production",
                 "PORT" : 3000,
                 "CONFIG_FILE" : "/path/to/production/config.js"
+                
+                // Must set add config when STORAGE_TYPE is upyun
+                // "STORAGE_TYPE" : "upyun",
+                // "DOWNLOAD_URL" : "",
+                // "UPYUN_STORAGE_DIR" : "",
+                // "UPYUN_SERVICE_NAME" : "",
+                // "UPYUN_OPERATOR_NAME" : "",
+                // "UPYUN_OPERATOR_PASS" : ""
             }
         }
     ]
