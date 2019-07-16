@@ -22,7 +22,7 @@ config.development = {
   },
   // Config for upyun (https://www.upyun.com/) storage when storageType value is "upyun"
   upyun: {
-    storageDir: process.evv.UPYUN_STORAGE_DIR,
+    storageDir: process.env.UPYUN_STORAGE_DIR,
     serviceName: process.env.UPYUN_SERVICE_NAME,
     operatorName: process.env.UPYUN_OPERATOR_NAME,
     operatorPass: process.env.UPYUN_OPERATOR_PASS,
