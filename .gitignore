@@ -15,3 +15,7 @@ pids
 node_modules
 
 coverage
+
+# vs code
+.history
+.idea
