@@ -54,6 +54,13 @@ config.development = {
     region: "",
     downloadUrl: "", // binary files download host address.
   },
+  // Config for sae(https://sae.sinacloud.com) cloud storage when storageType value is "sae".
+  sae: {
+    accessKeyId: process.env.SAE_ACCESS_KEY_ID || "",
+    secretKey: process.env.SAE_SECRET_KEY || "",
+    bucketName: process.env.SAE_BUCKET_NAME || "",
+    downloadUrl: process.env.SAE_DOWNLOAD_URL || "" // Binary files download host address.
+  },
   // Config for local storage when storageType value is "local".
   local: {
     // Binary files storage dir, Do not use tmpdir and it's public download dir.
