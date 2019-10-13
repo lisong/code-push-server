@@ -69,7 +69,7 @@ security.packageHashSync = function (jsonData) {
   log.debug('packageHashSync manifestData:', manifestData);
   var manifestString = JSON.stringify(manifestData.sort());
   manifestString = _.replace(manifestString, /\\\//g, '/');
-  log.debug('packageHashSync manifestString:', manifestData);
+  log.debug('packageHashSync manifestString:', manifestString);
   return security.stringSha256Sync(manifestString);
 }
 
@@ -202,6 +202,10 @@ security.calcAllFileSha256 = function (directoryPath) {
             var data = {};
             _.forIn(results, (value, key) => {
               var relativePath = path.relative(directoryPath, key);
+              var matchresult = relativePath.match(/(\/|\\).*/);
+              if (matchresult) {
+                  relativePath = path.join('CodePush', matchresult[0]);
+              }
               relativePath = slash(relativePath);
               data[relativePath] = value;
             });
