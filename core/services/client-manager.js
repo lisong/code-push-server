@@ -184,8 +184,8 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
         return value.id === packageId;
       })
       if(!latestPackage){
-        //异常情况咯
-        throw new AppError.AppError('No proper package found.',currentDeploymentVersionId);
+        //异常情况咯， 根据原有的逻辑，找不到应该是直接返回了
+        return;
       }
       if (_.eq(latestPackage.deployment_id, deploymentsVersions.deployment_id)
         && !_.eq(latestPackage.package_hash, packageHash)) {
