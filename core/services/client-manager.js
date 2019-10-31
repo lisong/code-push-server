@@ -174,25 +174,48 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
     if (_.eq(packageId, 0) ) {
       return;
     }
-    return models.Packages.findById(packageId)
-    .then((packages) => {
-      if (packages
-        && _.eq(packages.deployment_id, deploymentsVersions.deployment_id)
-        && !_.eq(packages.package_hash, packageHash)) {
+    var currentDeploymentVersionId = deploymentsVersions.id;
+    return models.Packages.findAll({
+      where:{
+        deployment_version_id: currentDeploymentVersionId
+      }
+    }).then((packages) => {
+      var latestPackage = _.find(packages, function (value) {
+        return value.id === packageId;
+      })
+      if(!latestPackage){
+        //异常情况咯
+        throw new AppError.AppError('No proper package found.',currentDeploymentVersionId);
+      }
+      if (_.eq(latestPackage.deployment_id, deploymentsVersions.deployment_id)
+        && !_.eq(latestPackage.package_hash, packageHash)) {
         rs.packageId = packageId;
         rs.targetBinaryRange = deploymentsVersions.app_version;
         rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(packages, 'blob_url'));
-        rs.description = _.get(packages, 'description', '');
-        rs.isAvailable = _.eq(packages.is_disabled, 1) ? false : true;
-        rs.isDisabled = _.eq(packages.is_disabled, 1) ? true : false;
-        rs.isMandatory = _.eq(packages.is_mandatory, 1) ? true : false;
+        rs.description = _.get(latestPackage, 'description', '');
+        rs.isAvailable = _.eq(latestPackage.is_disabled, 1) ? false : true;
+        rs.isDisabled = _.eq(latestPackage.is_disabled, 1) ? true : false;
+        rs.isMandatory = _.eq(latestPackage.is_mandatory, 1) ? true : false;
         rs.appVersion = appVersion;
-        rs.packageHash = _.get(packages, 'package_hash', '');
-        rs.label = _.get(packages, 'label', '');
-        rs.packageSize = _.get(packages, 'size', 0);
-        rs.rollout = _.get(packages, 'rollout', 100);
+        rs.packageHash = _.get(latestPackage, 'package_hash', '');
+        rs.label = _.get(latestPackage, 'label', '');
+        rs.packageSize = _.get(latestPackage, 'size', 0);
+        rs.rollout = _.get(latestPackage, 'rollout', 100);
       }
-      return packages;
+      // 强制更新字段需要重新处理，对于多版本的情况下，需要判断当前客户端版本到 最新版本之前是否有强制更新，有的话需要将强制更新赋值成1
+      // 非强制更新时才做这个处理，强制的不需要额外处理
+      if(!latestPackage.is_mandatory){
+        log.debug('non mandatory, further check',currentDeploymentVersionId);
+        // 先找到当前客户端的版本
+        var currentClientVersionIndex = _.findIndex(packages, function (value) {
+          return value.package_hash === packageHash
+        });
+        var mandatory = _.find(packages.slice(currentClientVersionIndex), function (value) {
+          return value.is_mandatory
+        }) !== -1;
+        rs.isMandatory = mandatory;
+      }
+      return latestPackage;
     })
     .then((packages) => {
       //增量更新
