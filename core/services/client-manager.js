@@ -210,10 +210,12 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
         var currentClientVersionIndex = _.findIndex(packages, function (value) {
           return value.package_hash === packageHash
         });
-        var mandatory = _.find(packages.slice(currentClientVersionIndex), function (value) {
-          return value.is_mandatory
-        }) !== -1;
-        rs.isMandatory = mandatory;
+        if(currentClientVersionIndex !== -1){
+          var mandatory = _.find(packages.slice(currentClientVersionIndex), function (value) {
+            return value.is_mandatory
+          }) !== -1;
+          rs.isMandatory = mandatory;
+        }
       }
       return latestPackage;
     })
