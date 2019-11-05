@@ -191,7 +191,7 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
         && !_.eq(latestPackage.package_hash, packageHash)) {
         rs.packageId = packageId;
         rs.targetBinaryRange = deploymentsVersions.app_version;
-        rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(packages, 'blob_url'));
+        rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(latestPackage, 'blob_url'));
         rs.description = _.get(latestPackage, 'description', '');
         rs.isAvailable = _.eq(latestPackage.is_disabled, 1) ? false : true;
         rs.isDisabled = _.eq(latestPackage.is_disabled, 1) ? true : false;
