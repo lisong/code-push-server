@@ -8,6 +8,7 @@ var AppError = require('../app-error');
 var config    = require('../config');
 var log4js = require('log4js');
 var log = log4js.getLogger("cps:ClientManager");
+// log.level = 'debug';
 var Sequelize = require('sequelize');
 
 var proto = module.exports = function (){
@@ -216,12 +217,14 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
 
         // 这里还是基于Package中id是增长的
         var mandatory = _.findIndex(_.filter(nonDisabledPackages,function (value) {
-          return value.package_id > currentClientPackageId;
+          return value.id > currentClientPackageId;
         }), function (value) {
           return value.is_mandatory
         }) !== -1;
+        log.debug('mandatory', mandatory);
         rs.isMandatory = mandatory;
       }
+      log.debug(rs);
       return latestPackage;
     })
     .then((packages) => {
