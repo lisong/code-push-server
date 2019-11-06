@@ -125,7 +125,6 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
     downloadUrl: "",
     description: "",
     isAvailable: false,
-    isDisabled: true,
     isMandatory: false,
     appVersion: appVersion,
     targetBinaryRange: "",
@@ -170,31 +169,34 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
     });
   })
   .then((deploymentsVersions) => {
-    var packageId = _.get(deploymentsVersions, 'current_package_id', 0);
-    if (_.eq(packageId, 0) ) {
-      return;
-    }
     var currentDeploymentVersionId = deploymentsVersions.id;
     return models.Packages.findAll({
       where:{
+        // 考虑到用户当前已经更新的版本可能已经是disabled 状态了，所以不能在查找数据的时候就过滤掉，只能后续的逻辑上处理
+        // is_disabled: 0, //只找没有被禁用的版本，毕竟返回给前端的应该是完全OK的版本才对
         deployment_version_id: currentDeploymentVersionId
-      }
+      },
+      order: [['id','asc']],
     }).then((packages) => {
-      var latestPackage = _.find(packages, function (value) {
-        return value.id === packageId;
-      })
-      if(!latestPackage){
-        //异常情况咯， 根据原有的逻辑，找不到应该是直接返回了
+      if(!(packages && packages.length)){
         return;
       }
+      // 非disabled状态的数组
+      var nonDisabledPackages = _.filter(packages, function (value) {
+        return !value.is_disabled
+      });
+      if(!(nonDisabledPackages && nonDisabledPackages.length)){
+        return;
+      }
+      // 这里基于id一定是逐渐递增的，所以最后一个非disabled的就是需要更新的包
+      var latestPackage = nonDisabledPackages[nonDisabledPackages.length -1];
       if (_.eq(latestPackage.deployment_id, deploymentsVersions.deployment_id)
         && !_.eq(latestPackage.package_hash, packageHash)) {
-        rs.packageId = packageId;
+        rs.packageId = latestPackage.id;
         rs.targetBinaryRange = deploymentsVersions.app_version;
         rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(latestPackage, 'blob_url'));
         rs.description = _.get(latestPackage, 'description', '');
         rs.isAvailable = _.eq(latestPackage.is_disabled, 1) ? false : true;
-        rs.isDisabled = _.eq(latestPackage.is_disabled, 1) ? true : false;
         rs.isMandatory = _.eq(latestPackage.is_mandatory, 1) ? true : false;
         rs.appVersion = appVersion;
         rs.packageHash = _.get(latestPackage, 'package_hash', '');
@@ -207,15 +209,18 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
       if(!latestPackage.is_mandatory){
         log.debug('non mandatory, further check',currentDeploymentVersionId);
         // 先找到当前客户端的版本
-        var currentClientVersionIndex = _.findIndex(packages, function (value) {
+        var currentClientPackage = _.find(packages, function (value) {
           return value.package_hash === packageHash
         });
-        if(currentClientVersionIndex !== -1){
-          var mandatory = _.find(packages.slice(currentClientVersionIndex), function (value) {
-            return value.is_mandatory
-          }) !== -1;
-          rs.isMandatory = mandatory;
-        }
+        var currentClientPackageId = currentClientPackage ? currentClientPackage.id : 0;
+
+        // 这里还是基于Package中id是增长的
+        var mandatory = _.findIndex(_.filter(nonDisabledPackages,function (value) {
+          return value.package_id > currentClientPackageId;
+        }), function (value) {
+          return value.is_mandatory
+        }) !== -1;
+        rs.isMandatory = mandatory;
       }
       return latestPackage;
     })
