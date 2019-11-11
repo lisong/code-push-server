@@ -170,6 +170,7 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
     });
   })
   .then((deploymentsVersions) => {
+    if(!deploymentsVersions){return;}
     var currentDeploymentVersionId = deploymentsVersions.id;
     return models.Packages.findAll({
       where:{
