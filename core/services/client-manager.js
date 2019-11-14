@@ -152,35 +152,77 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
       max_version: { [Sequelize.Op.gt]: version }
     }})
     .then((deploymentsVersionsMore) => {
-      var distance = 0;
-      var item = null;
-      _.map(deploymentsVersionsMore, function(value, index) {
-        if (index == 0) {
-          item = value;
-          distance = value.max_version - value.min_version;
-        } else {
-          if (distance > (value.max_version - value.min_version)) {
-            distance = value.max_version - value.min_version;
-            item = value;
+      // 假如传入的版本是1.9.19
+      // 由于可能的版本现在包括有1.9.19 1.9.18-1.9.20 1.9.19||1.9.18 所以会有多个版本的数据会需要做进一步筛选
+      // 同时由于最大版本和最小版本的方式下，或版本(||) 会存在不一定匹配上的问题（比如1.9.18 || 1.9.20这个版本会匹配上，
+      // 但是实际上是没有包含当前版本的)，需要过滤出去
+      // 废除掉原有的距离判断方式
+
+      // var distance = 0;
+      // var item = null;
+      // _.map(deploymentsVersionsMore, function(value, index) {
+      //   if (index == 0) {
+      //     item = value;
+      //     distance = value.max_version - value.min_version;
+      //   } else {
+      //     if (distance > (value.max_version - value.min_version)) {
+      //       distance = value.max_version - value.min_version;
+      //       item = value;
+      //     }
+      //   }
+      // });
+      // log.debug(item);
+      // return item;
+
+      var items = [];
+      _.forEach(deploymentsVersionsMore, function (value) {
+          const currentVersion = value.app_version;
+          // var distance = value.max_version - value.min_version;
+          if(!currentVersion){
+            console.error('app_version is not exist!');
           }
-        }
-      });
-      log.debug(item);
-      return item;
+          // 查找符合条件的版本号
+          if(appVersion === currentVersion){
+            //完全匹配版本
+            items.push(value);
+          }else if(currentVersion.indexOf('-') > -1){
+            // a - b的版本，这种版本既然通过了筛选，肯定是符合条件的
+            items.push(value);
+          }else if(currentVersion.indexOf('||') > -1){
+            // 或的版本需要考虑是否在里边
+            const orVersion = currentVersion.split(/\s?\|\|\s?/); // 分割的数组，去掉空格
+            if(_.includes(orVersion,appVersion)){
+              items.push(value);
+            }
+
+          }
+
+      })
+      log.debug('filtered DeploymentsVersions',items);
+      return items;
     });
   })
   .then((deploymentsVersions) => {
-    if(!deploymentsVersions){return;}
-    var currentDeploymentVersionId = deploymentsVersions.id;
+    if(!deploymentsVersions || !deploymentsVersions.length){
+      log.debug('deploymentsVersion is null');
+      return;
+    }
+    //var currentDeploymentVersionId = deploymentsVersions.id;
+    const currentDeploymentVersionIds = _.map(deploymentsVersions,function (one) {
+      return one.id;
+    })
+    const {or} = Sequelize.Op;
     return models.Packages.findAll({
       where:{
         // 考虑到用户当前已经更新的版本可能已经是disabled 状态了，所以不能在查找数据的时候就过滤掉，只能后续的逻辑上处理
-        // is_disabled: 0, //只找没有被禁用的版本，毕竟返回给前端的应该是完全OK的版本才对
-        deployment_version_id: currentDeploymentVersionId
+        [or]:{
+          deployment_version_id:currentDeploymentVersionIds
+        }
       },
       order: [['id','asc']],
     }).then((packages) => {
       if(!(packages && packages.length)){
+        log.debug('package is null');
         return;
       }
       // 非disabled状态的数组
@@ -188,14 +230,18 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
         return !value.is_disabled
       });
       if(!(nonDisabledPackages && nonDisabledPackages.length)){
+        log.debug('every package is disabled');
         return;
       }
       // 这里基于id一定是逐渐递增的，所以最后一个非disabled的就是需要更新的包
       var latestPackage = nonDisabledPackages[nonDisabledPackages.length -1];
-      if (_.eq(latestPackage.deployment_id, deploymentsVersions.deployment_id)
-        && !_.eq(latestPackage.package_hash, packageHash)) {
+      const currentDv = _.find(deploymentsVersions, function (dv) {
+        return dv.id === latestPackage.deployment_version_id
+      }) || deploymentsVersions[0]; // 这里不应该找不到，不过如果实在是找不到就丢第0个元素
+      if (!_.eq(latestPackage.package_hash, packageHash)) {
         rs.packageId = latestPackage.id;
-        rs.targetBinaryRange = deploymentsVersions.app_version;
+        // 保留原意的targetBinaryRange， 虽然不知道有什么用
+        rs.targetBinaryRange = currentDv.app_version;
         rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(latestPackage, 'blob_url'));
         rs.description = _.get(latestPackage, 'description', '');
         rs.isAvailable = _.eq(latestPackage.is_disabled, 1) ? false : true;
@@ -209,7 +255,7 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
       // 强制更新字段需要重新处理，对于多版本的情况下，需要判断当前客户端版本到 最新版本之前是否有强制更新，有的话需要将强制更新赋值成1
       // 非强制更新时才做这个处理，强制的不需要额外处理
       if(!latestPackage.is_mandatory){
-        log.debug('non mandatory, further check',currentDeploymentVersionId);
+        log.debug('non mandatory, further check',currentDv.id);
         // 先找到当前客户端的版本
         var currentClientPackage = _.find(packages, function (value) {
           return value.package_hash === packageHash

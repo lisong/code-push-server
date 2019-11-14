@@ -42,11 +42,14 @@ common.parseVersion = function (versionNo) {
   return version;
 };
 
+
+// 注意，versionNo.match的大部分正则都有小问题，因为.是代表任意字符而不是小数点，不想改，麻烦
 common.validatorVersion = function (versionNo) {
   var flag = false;
   var min = '0';
   var max = '9999999999999999999';
   var data = null;
+  const orVersion = versionNo.split(/\s?\|\|\s?/); // 分割的数组，去掉空格
   if (versionNo == "*") {
     // "*"
     flag = true;
@@ -80,6 +83,16 @@ common.validatorVersion = function (versionNo) {
     flag = true;
     min = data[1] + _.padStart(data[2], 5, '0') + _.padStart(data[3], 10, '0');
     max = data[4] + _.padStart(data[5], 5, '0') + _.padStart(data[6], 10, '0');
+  } else if (orVersion.length >= 2){ // length=1说明根本没有匹配上
+    // 支持 1.0.0 || 1.0.2 || 1.0.3这样的或版本
+    flag = true;
+    const fVersions = _.map(orVersion,function (one) {
+      data = one.match(/^([0-9]{1,3})\.([0-9]{1,5})\.([0-9]{1,10})$/);
+      return data[1] + _.padStart(data[2], 5, '0') + _.padStart(data[3], 10, '0');
+    }).sort();
+    min = fVersions[0];
+    max = +fVersions[fVersions.length-1]+1+'';
+    console.log('this is or version', min, max);
   }
   return [flag, min, max];
 };
