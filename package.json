@@ -70,7 +70,7 @@
     "recursive-readdir": "^2.1.1",
     "redis": "^2.6.2",
     "request": "^2.72.0",
-    "sequelize": "^4.37.1",
+    "sequelize": "^5.15.1",
     "serve-favicon": "^2.4.0",
     "slash": "^2.0.0",
     "validator": "^10.6.0",
