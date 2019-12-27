@@ -31,22 +31,17 @@ proto.addApp = function (uid, appName, os, platform, identical) {
       var constName = require('../const');
       var appId = apps.id;
       var deployments = [];
-      var deploymentKey = security.randToken(28) + identical;
-      deployments.push({
-        appid: appId,
-        name: constName.PRODUCTION,
-        last_deployment_version_id: 0,
-        label_id: 0,
-        deployment_key: deploymentKey
-      });
-      deploymentKey = security.randToken(28) + identical;
-      deployments.push({
-        appid: appId,
-        name: constName.STAGING,
-        last_deployment_version_id: 0,
-        label_id: 0,
-        deployment_key: deploymentKey
-      });
+      var deployments_names = process.env.DEFAULT_DEPLOYMENTS ? process.env.DEFAULT_DEPLOYMENTS.split(":") : [constName.PRODUCTION, constName.STAGING];
+      for(var i in deployments_names) {
+        var deploymentKey = security.randToken(28) + identical;
+        deployments.push({
+          appid: appId,
+          name: deployments_names[i],
+          last_deployment_version_id: 0,
+          label_id: 0,
+          deployment_key: deploymentKey
+        });
+      }
       return Promise.all([
         models.Collaborators.create({appid: appId, uid: uid, roles: "Owner"}, {transaction: t}),
         models.Deployments.bulkCreate(deployments, {transaction: t})
