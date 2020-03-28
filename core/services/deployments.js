@@ -138,7 +138,7 @@ proto.formatPackage = function(packageVersion) {
   }
   return {
     description: _.get(packageVersion, "packageInfo.description"),
-    isDisabled: false,
+    isDisabled: _.get(packageVersion, "packageInfo.is_disabled") == 1 ? true : false,
     isMandatory: _.get(packageVersion, "packageInfo.is_mandatory") == 1 ? true : false,
     rollout: 100,
     appVersion: _.get(packageVersion, "deploymentsVersions.app_version"),
