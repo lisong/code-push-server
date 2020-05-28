@@ -140,7 +140,7 @@ proto.formatPackage = function(packageVersion) {
     description: _.get(packageVersion, "packageInfo.description"),
     isDisabled: false,
     isMandatory: _.get(packageVersion, "packageInfo.is_mandatory") == 1 ? true : false,
-    rollout: 100,
+    rollout: _.get(packageVersion, "packageInfo.rollout"),
     appVersion: _.get(packageVersion, "deploymentsVersions.app_version"),
     packageHash: _.get(packageVersion, "packageInfo.package_hash"),
     blobUrl: common.getBlobDownloadUrl(_.get(packageVersion, "packageInfo.blob_url")),
