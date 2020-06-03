@@ -37,7 +37,9 @@ router.get('/update_check', (req, res, next) => {
         description : rs.description,
         is_available : rs.isAvailable,
         is_disabled : rs.isDisabled,
-        target_binary_range: rs.targetBinaryRange,
+        // Note: need to use appVersion here to get it compatible with client side change...
+        // https://github.com/microsoft/code-push/commit/7d2ffff395cc54db98aefba7c67889f509e8c249#diff-a937c637a47cbd31cbb52c89bef7d197R138
+        target_binary_range: rs.appVersion,
         label: rs.label,
         package_hash: rs.packageHash,
         package_size: rs.packageSize,
