@@ -62,6 +62,7 @@ $ vim docker-compose.yml
 ## 部署
 
 ```shell
+$ sudo docker-compose build
 $ sudo docker stack deploy -c docker-compose.yml code-push-server
 ```
 
