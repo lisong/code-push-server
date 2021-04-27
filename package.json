@@ -68,7 +68,7 @@
     "upyun": "^3.3.9",
     "rand-token": "^0.4.0",
     "recursive-readdir": "^2.1.1",
-    "redis": "^2.6.2",
+    "redis": "^3.1.1",
     "request": "^2.72.0",
     "sequelize": "^4.37.1",
     "serve-favicon": "^2.4.0",
