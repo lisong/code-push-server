@@ -8,6 +8,7 @@ var AppError = require('../app-error');
 var config    = require('../config');
 var log4js = require('log4js');
 var log = log4js.getLogger("cps:ClientManager");
+// log.level = 'debug';
 var Sequelize = require('sequelize');
 
 var proto = module.exports = function (){
@@ -125,7 +126,6 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
     downloadUrl: "",
     description: "",
     isAvailable: false,
-    isDisabled: true,
     isMandatory: false,
     appVersion: appVersion,
     targetBinaryRange: "",
@@ -170,29 +170,62 @@ proto.updateCheck = function(deploymentKey, appVersion, label, packageHash, clie
     });
   })
   .then((deploymentsVersions) => {
-    var packageId = _.get(deploymentsVersions, 'current_package_id', 0);
-    if (_.eq(packageId, 0) ) {
-      return;
-    }
-    return models.Packages.findById(packageId)
-    .then((packages) => {
-      if (packages
-        && _.eq(packages.deployment_id, deploymentsVersions.deployment_id)
-        && !_.eq(packages.package_hash, packageHash)) {
-        rs.packageId = packageId;
-        rs.targetBinaryRange = deploymentsVersions.app_version;
-        rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(packages, 'blob_url'));
-        rs.description = _.get(packages, 'description', '');
-        rs.isAvailable = _.eq(packages.is_disabled, 1) ? false : true;
-        rs.isDisabled = _.eq(packages.is_disabled, 1) ? true : false;
-        rs.isMandatory = _.eq(packages.is_mandatory, 1) ? true : false;
-        rs.appVersion = appVersion;
-        rs.packageHash = _.get(packages, 'package_hash', '');
-        rs.label = _.get(packages, 'label', '');
-        rs.packageSize = _.get(packages, 'size', 0);
-        rs.rollout = _.get(packages, 'rollout', 100);
+    var currentDeploymentVersionId = deploymentsVersions.id;
+    return models.Packages.findAll({
+      where:{
+        // 考虑到用户当前已经更新的版本可能已经是disabled 状态了，所以不能在查找数据的时候就过滤掉，只能后续的逻辑上处理
+        // is_disabled: 0, //只找没有被禁用的版本，毕竟返回给前端的应该是完全OK的版本才对
+        deployment_version_id: currentDeploymentVersionId
+      },
+      order: [['id','asc']],
+    }).then((packages) => {
+      if(!(packages && packages.length)){
+        return;
       }
-      return packages;
+      // 非disabled状态的数组
+      var nonDisabledPackages = _.filter(packages, function (value) {
+        return !value.is_disabled
+      });
+      if(!(nonDisabledPackages && nonDisabledPackages.length)){
+        return;
+      }
+      // 这里基于id一定是逐渐递增的，所以最后一个非disabled的就是需要更新的包
+      var latestPackage = nonDisabledPackages[nonDisabledPackages.length -1];
+      if (_.eq(latestPackage.deployment_id, deploymentsVersions.deployment_id)
+        && !_.eq(latestPackage.package_hash, packageHash)) {
+        rs.packageId = latestPackage.id;
+        rs.targetBinaryRange = deploymentsVersions.app_version;
+        rs.downloadUrl = rs.downloadURL = common.getBlobDownloadUrl(_.get(latestPackage, 'blob_url'));
+        rs.description = _.get(latestPackage, 'description', '');
+        rs.isAvailable = _.eq(latestPackage.is_disabled, 1) ? false : true;
+        rs.isMandatory = _.eq(latestPackage.is_mandatory, 1) ? true : false;
+        rs.appVersion = appVersion;
+        rs.packageHash = _.get(latestPackage, 'package_hash', '');
+        rs.label = _.get(latestPackage, 'label', '');
+        rs.packageSize = _.get(latestPackage, 'size', 0);
+        rs.rollout = _.get(latestPackage, 'rollout', 100);
+      }
+      // 强制更新字段需要重新处理，对于多版本的情况下，需要判断当前客户端版本到 最新版本之前是否有强制更新，有的话需要将强制更新赋值成1
+      // 非强制更新时才做这个处理，强制的不需要额外处理
+      if(!latestPackage.is_mandatory){
+        log.debug('non mandatory, further check',currentDeploymentVersionId);
+        // 先找到当前客户端的版本
+        var currentClientPackage = _.find(packages, function (value) {
+          return value.package_hash === packageHash
+        });
+        var currentClientPackageId = currentClientPackage ? currentClientPackage.id : 0;
+
+        // 这里还是基于Package中id是增长的
+        var mandatory = _.findIndex(_.filter(nonDisabledPackages,function (value) {
+          return value.id > currentClientPackageId;
+        }), function (value) {
+          return value.is_mandatory
+        }) !== -1;
+        log.debug('mandatory', mandatory);
+        rs.isMandatory = mandatory;
+      }
+      log.debug(rs);
+      return latestPackage;
     })
     .then((packages) => {
       //增量更新
