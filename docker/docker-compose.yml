@@ -1,7 +1,8 @@
 version: "3.7"
 services:
   server:
-    image: tablee/code-push-server:v0.5.2
+    build: ./code-push-server
+    image: code-push-server
     volumes:
       - data-storage:/data/storage
       - data-tmp:/data/tmp
