@@ -57,7 +57,7 @@
     "jschardet": "^1.6.0",
     "jsonwebtoken": "^8.2.0",
     "lodash": "^4.17.5",
-    "log4js": "^3.0.5",
+    "log4js": "^6.4.0",
     "markdown-it": "^8.0.1",
     "moment": "^2.14.1",
     "morgan": "^1.7.0",
