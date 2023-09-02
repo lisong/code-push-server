@@ -55,7 +55,7 @@
     "helmet": "^3.1.0",
     "i18n": "^0.8.3",
     "jschardet": "^1.6.0",
-    "jsonwebtoken": "^8.2.0",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.5",
     "log4js": "^3.0.5",
     "markdown-it": "^8.0.1",
