@@ -8,6 +8,7 @@ var _ = require('lodash');
 var validator = require('validator');
 var qiniu = require("qiniu");
 var upyun = require('upyun');
+var sinaCloud = require('scs-sdk');
 var common = {};
 var AppError = require('../app-error');
 var jschardet = require("jschardet");
@@ -230,6 +231,8 @@ common.uploadFileToStorage = function (key, filePath) {
     return common.uploadFileToUpyun(key, filePath);
   } else if (storageType === 'tencentcloud') {
     return common.uploadFileToTencentCloud(key, filePath);
+  } else if (storageType === 'sae') {
+    return common.uploadFileToSae(key, filePath);
   }
   throw new AppError.AppError(`${storageType} storageType does not support.`);
 };
@@ -472,6 +475,38 @@ common.uploadFileToTencentCloud = function (key, filePath) {
     });
   });
 }
+
+common.uploadFileToSae = function (key, filePath) {
+  
+  return (
+    new Promise((resolve, reject) => {
+      var saeconfig = new sinaCloud.Config({
+        accessKeyId: _.get(config, "sae.accessKeyId"),
+        secretAccessKey: _.get(config, "sae.secretKey"),
+        sslEnabled: false
+      });
+
+      var saeBucket = new sinaCloud.S3();
+      saeBucket.config = saeconfig;
+
+      fs.readFile(filePath, (err, data) => {
+        var upSaeData = {
+          ACL: 'public-read',
+          Key: key,
+          Body: data,
+          Bucket: _.get(config, "sae.bucketName")
+        };
+        saeBucket.putObject(upSaeData, function(err, data) {
+          if (err) {
+            reject(new AppError.AppError(JSON.stringify(err)));
+          } else {
+            resolve(data)
+          }
+        });
+      });
+    })
+  );
+};
 
 common.diffCollectionsSync = function (collection1, collection2) {
   var diffFiles = [];
