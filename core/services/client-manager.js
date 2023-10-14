@@ -266,8 +266,8 @@ proto.reportStatusDeploy = function (deploymentKey, label, clientUniqueId, other
       status = constConfig.DEPLOYMENT_FAILED;
     }
     var packageId = packages.id;
-    var previous_deployment_key = _.get(others, 'previousDeploymentKey');
-    var previous_label = _.get(others, 'previousLabelOrAppVersion');
+    var previous_deployment_key = _.get(others, 'previous_deployment_key');
+    var previous_label = _.get(others, 'previous_label_or_app_version');
     if (status > 0) {
       return Promise.all([
         models.LogReportDeploy.create({
