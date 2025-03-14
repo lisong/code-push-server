@@ -22,24 +22,24 @@ CodePush Server is a CodePush progam server! microsoft CodePush cloud is slow in
 - oss *storage bundle file in [aliyun](https://www.aliyun.com/product/oss)*
 - tencentcloud *storage bundle file in [tencentcloud](https://cloud.tencent.com/product/cos)*
 
-## 正确使用code-push热更新
+## Proper Usage of Code-Push Hot Updates
 
-- 苹果App允许使用热更新[Apple's developer agreement](https://developer.apple.com/programs/ios/information/iOS_Program_Information_4_3_15.pdf), 为了不影响用户体验，规定必须使用静默更新。 Google Play不能使用静默更新，必须弹框告知用户App有更新。中国的android市场必须采用静默更新（如果弹框提示，App会被“请上传最新版本的二进制应用包”原因驳回）。
-- react-native 不同平台bundle包不一样，在使用code-push-server的时候必须创建不同的应用来区分(eg. CodePushDemo-ios 和 CodePushDemo-android)
-- react-native-code-push只更新资源文件,不会更新java和Objective C，所以npm升级依赖包版本的时候，如果依赖包使用的本地化实现, 这时候必须更改应用版本号(ios修改Info.plist中的CFBundleShortVersionString, android修改build.gradle中的versionName), 然后重新编译app发布到应用商店。
-- 推荐使用code-push release-react 命令发布应用，该命令合并了打包和发布命令(eg. code-push release-react CodePushDemo-ios ios -d Production)
-- 每次向App Store提交新的版本时，也应该基于该提交版本同时向code-push-server发布一个初始版本。(因为后面每次向code-push-server发布版本时，code-puse-server都会和初始版本比较，生成补丁版本)
+- Apple Apps allow hot updates according to [Apple's developer agreement](https://developer.apple.com/programs/ios/information/iOS_Program_Information_4_3_15.pdf). To maintain a good user experience, silent updates are required. Google Play does not allow silent updates and requires a dialog to inform users about App updates. Chinese Android markets require silent updates (if a dialog prompt is shown, the App will be rejected with the reason "Please upload the latest version of the binary application package").
+- React Native bundle packages are different for different platforms, so you must create different applications to distinguish them when using code-push-server (e.g., CodePushDemo-ios and CodePushDemo-android).
+- React-native-code-push only updates resource files and does not update Java and Objective C. Therefore, when upgrading npm dependency package versions, if the dependency package uses native implementations, you must change the application version number (modify CFBundleShortVersionString in Info.plist for iOS, modify versionName in build.gradle for Android), then recompile the app and publish it to the app store.
+- It is recommended to use the code-push release-react command to publish applications, as this command combines packaging and publishing commands (e.g., code-push release-react CodePushDemo-ios ios -d Production).
+- Every time you submit a new version to the App Store, you should also publish an initial version to code-push-server based on that submission version. (This is because code-push-server will compare each subsequent version with the initial version to generate patch versions.)
 
 
 ### shell login
 
 ```shell
-$ code-push login http://api.code-push.com #登录
+$ code-push login http://api.code-push.com #login
 ```
 
 ### [web](http://www.code-push.com) 
 
-访问：http://www.code-push.com
+Visit: http://www.code-push.com
 
 ### client eg.
 

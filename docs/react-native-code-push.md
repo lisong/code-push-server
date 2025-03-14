@@ -1,71 +1,71 @@
-# `react-native` 如何使用 `code-push` 热更新
+# How to Use `code-push` Hot Updates with `react-native`
 
-## 使用前须知
+## Prerequisites
 
- - Q: “苹果应用商店和android应用商店允不允许使用热更新？”    
-   A: “都允许。”
+ - Q: "Do Apple App Store and Android App Store allow hot updates?"    
+   A: "Yes, both allow it."
 
-   > 苹果允许使用热更新[Apple's developer agreement](https://developer.apple.com/programs/ios/information/iOS_Program_Information_4_3_15.pdf), 但是规定不能弹框提示用户更新，影响用户体验。 
-   > Google Play也允许热更新，但必须弹框告知用户更新。在中国的android市场发布时，都必须关闭更新弹框，否则会在审核应用时以“请上传最新版本的二进制应用包”驳回应用。 
+   > Apple allows hot updates according to [Apple's developer agreement](https://developer.apple.com/programs/ios/information/iOS_Program_Information_4_3_15.pdf), but it requires silent updates without dialog prompts to maintain user experience. 
+   > Google Play also allows hot updates but requires a dialog to inform users about updates. When publishing to Chinese Android markets, update dialogs must be disabled, otherwise the app will be rejected with the reason "Please upload the latest version of the binary application package".
        
- - Q: “react-native 开发环境更新模式是否可以直接用在生产环境下？”    
-   A: “不能。”
+ - Q: "Can React Native development environment update mode be used directly in production?"    
+   A: "No."
 
- - Q: “code-push使用复杂么？”    
-   A: “不复杂。很多网上的文章说复杂，是因为作者没有仔细理解官方文档，而且认为踩坑了。”
+ - Q: "Is code-push complicated to use?"    
+   A: "No, it's not complicated. Many online articles say it's complex because the authors haven't carefully read the official documentation and think they've encountered issues."
 
- - Q: “为什么推荐code-push？”    
-   A: ”非常好。除了满足基本更新功能外，还有统计，hash计算容错和补丁更新功能。微软的项目，大公司技术有保障，而且开源。近几年微软在拥抱开源方面，让大家也是刮目相看。“
+ - Q: "Why is code-push recommended?"    
+   A: "It's excellent. Besides meeting basic update functionality, it also includes statistics, hash calculation error tolerance, and patch update features. It's a Microsoft project, so the technology is reliable, and it's open source. In recent years, Microsoft's embrace of open source has been impressive."
 
-## 安装依赖包
+## Install Dependencies
 
-#### 1. [react-native-cli](https://github.com/facebook/react-native) react-native命令行工具，安装后可以在终端使用`react-native`命令
+#### 1. [react-native-cli](https://github.com/facebook/react-native) React Native command line tool, after installation you can use the `react-native` command in terminal
  
 ```shell
 $ npm install react-native-cli@latest -g
 ```
  
-#### 2. [code-push-cli](https://github.com/Microsoft/code-push) 连接微软云端，管理发布更新版本命令行工具，安装后可以在终端使用`code-push`命令
+#### 2. [code-push-cli](https://github.com/Microsoft/code-push) Command line tool to connect to Microsoft cloud and manage release updates, after installation you can use the `code-push` command in terminal
    
 ```shell
 $ npm install code-push-cli@latest -g 
 ```
 
-#### 3. [react-native-code-push](https://github.com/Microsoft/react-native-code-push) 集成到react-native项目，按照以下步骤安装并修改配置既可集成
+#### 3. [react-native-code-push](https://github.com/Microsoft/react-native-code-push) Integrate into React Native project, follow these steps to install and modify configuration
 
 ```shell
-$ react-native init CodePushDemo #初始化一个react-native项目
+$ react-native init CodePushDemo #Initialize a React Native project
 $ cd CodePushDemo
-$ npm install --save react-native-code-push@latest  #安装react-native-code-push
-$ react-native link react-native-code-push  #连接到项目中，提示输入配置可以先行忽略
+$ npm install --save react-native-code-push@latest  #Install react-native-code-push
+$ react-native link react-native-code-push  #Link to project, you can ignore configuration prompts for now
 ```
 
-#### 4. [code-push-server](https://github.com/lisong/code-push-server) 微软云服务在中国太慢，可以用它搭建自己的服务端。
+#### 4. [code-push-server](https://github.com/lisong/code-push-server) Microsoft cloud service is slow in China, you can use this to build your own server.
 
 - [docker](https://github.com/lisong/code-push-server/blob/master/docker/README.md) (recommend)
 - [manual operation](https://github.com/lisong/code-push-server/blob/master/docs/README.md)
 
-## 创建服务端应用
+## Create Server Applications
 
-基于code-push-server服务
+Based on code-push-server
 
 ```shell
-$ code-push login http://YOUR_CODE_PUSH_SERVER_IP:3000  #浏览器中登录获取token，用户名:admin, 密码:123456
-$ code-push app add CodePushDemoiOS ios react-native #创建iOS版, 获取Production DeploymentKey
-$ code-push app add CodePushDemoAndroid android react-native #创建android版，获取获取Production DeploymentKey
+$ code-push login http://YOUR_CODE_PUSH_SERVER_IP:3000  #Login in browser to get token, username:admin, password:123456
+$ code-push app add CodePushDemoiOS ios react-native #Create iOS version, get Production DeploymentKey
+$ code-push app add CodePushDemoAndroid android react-native #Create Android version, get Production DeploymentKey
 ```
 
-## 配置CodePushDemo react-native项目
+## Configure CodePushDemo React Native Project
 
-#### iOS 配置
+#### iOS Configuration
 
-编辑`Info.plist`文件，添加`CodePushDeploymentKey`和`CodePushServerURL`
+Edit the `Info.plist` file, add `CodePushDeploymentKey` and `CodePushServerURL`
 
-1. `CodePushDeploymentKey`值设置为CodePushDemo-ios的Production DeploymentKey值。
+1. Set `CodePushDeploymentKey` value to the Production DeploymentKey value of CodePushDemo-ios.
 
-2. `CodePushServerURL`值设置为code-push-server服务地址 http://YOUR_CODE_PUSH_SERVER_IP:3000/ 不在同一台机器的时候，请将YOUR_CODE_PUSH_SERVER_IP改成外网ip或者域名地址。
+2. Set `CodePushServerURL` value to the code-push-server service address http://YOUR_CODE_PUSH_SERVER_IP:3000/ When not on the same machine, please change YOUR_CODE_PUSH_SERVER_IP to the external IP or domain address.
 
-3. 将默认版本号1.0改成三位1.0.0
+3. Change the default version number from 1.0 to three digits 1.0.0
 
 ```xml
 ...
@@ -76,15 +76,15 @@ $ code-push app add CodePushDemoAndroid android react-native #创建android版�
 ...
 ```
 
-#### android 配置
+#### Android Configuration
 
-编辑`MainApplication.java`
+Edit `MainApplication.java`
 
-1. `YourKey`替换成CodePushDemo-android的Production DeploymentKey值
+1. Replace `YourKey` with the Production DeploymentKey value of CodePushDemo-android
 
-2. `YourCodePushServerUrl`值设置为code-push-server服务地址 http://YOUR_CODE_PUSH_SERVER_IP:3000/ 不在同一台机器的时候，请将YOUR_CODE_PUSH_SERVER_IP改成外网ip或者域名地址。
+2. Set `YourCodePushServerUrl` value to the code-push-server service address http://YOUR_CODE_PUSH_SERVER_IP:3000/ When not on the same machine, please change YOUR_CODE_PUSH_SERVER_IP to the external IP or domain address.
 
-3. 将默认版本号1.0改成三位1.0.0
+3. Change the default version number from 1.0 to three digits 1.0.0
 
 ```java
 @Override
@@ -101,10 +101,10 @@ protected List<ReactPackage> getPackages() {
 }
 ```
 
-## 添加更新检查
+## Add Update Check
 
-可以参考[code-push-demo-app](https://github.com/lisong/code-push-demo-app/)
-可以在入口componentDidMount添加
+You can refer to [code-push-demo-app](https://github.com/lisong/code-push-demo-app/)
+Add this in the entry componentDidMount:
 
 ```javascript
 CodePush.sync({
@@ -113,13 +113,13 @@ CodePush.sync({
 });
 ```
 
-不要忘记头部引入
+Don't forget to import at the top:
 
 ```javascript
 import CodePush from "react-native-code-push" 
 ```
 
-## 运行CodePushDemo react-native项目
+## Run CodePushDemo React Native Project
 
 #### iOS
 
@@ -127,32 +127,32 @@ import CodePush from "react-native-code-push"
 $ cd /path/to/CodePushDemo
 $ open ios/CodePushDemo.xcodeproj 
 ```
-在Xcode中打开菜单 Product > Scheme > Edit Scheme... > Run 选项中Build Configuration修改成Release, 然后运行编译
+In Xcode, open menu Product > Scheme > Edit Scheme... > Run option, change Build Configuration to Release, then run and compile
 
-### android
+### Android
 
 ```shell
 $ cd /path/to/CodePushDemo
 $ cd android
 $ ./gradlew assembleRelease
-$ cd app/build/outputs/apk  #将打好的包app-release.apk安装到您的手机上
+$ cd app/build/outputs/apk  #Install the generated app-release.apk on your phone
 ```
 
-## 发布更新到服务上
+## Publish Updates to Server
 
-iOS和android要分开发布，所以创建了`CodePushDemo-ios`和`CodePushDemo-android`应用
+iOS and Android need to be published separately, so we created `CodePushDemo-ios` and `CodePushDemo-android` applications
 
 ```shell
 $ cd /path/to/CodePushDemo
-$ code-push release-react CodePushDemo-ios ios -d Production #iOS版
-$ code-push release-react CodePushDemo-android android -d Production #android版
+$ code-push release-react CodePushDemo-ios ios -d Production #iOS version
+$ code-push release-react CodePushDemo-android android -d Production #Android version
 ```
 
-## 例子
+## Examples
 
 [code-push-demo-app](https://github.com/lisong/code-push-demo-app)
 
 
-### 更多信息参考[code-push-server](https://github.com/lisong/code-push-server)
+### For more information, refer to [code-push-server](https://github.com/lisong/code-push-server)
 
 
