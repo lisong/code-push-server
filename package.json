@@ -53,7 +53,7 @@
     "formidable": "^1.2.1",
     "fs-extra": "^7.0.0",
     "helmet": "^3.1.0",
-    "i18n": "^0.8.3",
+    "i18n": "^0.14.0",
     "jschardet": "^1.6.0",
     "jsonwebtoken": "^8.2.0",
     "lodash": "^4.17.5",
