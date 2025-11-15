@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+import 'dotenv/config';
 import http from 'http';
 import { logger } from 'kv-logger';
 import _ from 'lodash';

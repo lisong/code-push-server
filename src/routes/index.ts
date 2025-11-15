@@ -10,6 +10,13 @@ indexRouter.get('/', (req, res) => {
     res.render('index', { title: 'CodePushServer' });
 });
 
+indexRouter.get('/healthcheck', (req, res) => {
+    res.status(200).json({
+        success: true,
+        timestamp: new Date().toISOString(),
+    });
+});
+
 indexRouter.get('/tokens', (req, res) => {
     // eslint-disable-next-line no-underscore-dangle
     res.render('tokens', { title: `${i18n.__('Obtain')} token` });

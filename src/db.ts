@@ -13,13 +13,13 @@ import { CURRENT_DB_VERSION } from './core/const';
 
 const argv = yargs
     .usage('Usage: $0 <command> [options]')
-    .command('init', '初始化数据库', {
+    .command('init', '데이터베이스 초기화', {
         dbpassword: {
             alias: 'dbpassword',
             type: 'string',
         },
     })
-    .command('upgrade', '升级数据库', {
+    .command('upgrade', '데이터베이스 업그레이드', {
         dbpassword: {
             alias: 'dbpassword',
             type: 'string',
@@ -27,17 +27,17 @@ const argv = yargs
     })
     .example(
         '$0 init --dbname codepush --dbhost localhost --dbuser root --dbpassword 123456 --dbport 3306 --force',
-        '初始化code-push-server数据库',
+        'code-push-server 데이터베이스 초기화',
     )
     .example(
         '$0 upgrade --dbname codepush --dbhost localhost --dbuser root --dbpassword 123456 --dbport 3306',
-        '升级code-push-server数据库',
+        'code-push-server 데이터베이스 업그레이드',
     )
     .default({
         dbname: 'codepush',
         dbhost: 'localhost',
-        dbuser: 'root',
-        dbpassword: null,
+        dbuser: 'codepush',
+        dbpassword: 'codepush',
     })
     .help('h')
     .alias('h', 'help')
@@ -46,7 +46,7 @@ const argv = yargs
 const command = argv._[0];
 const dbname = argv.dbname ? argv.dbname : 'codepush';
 const dbhost = argv.dbhost ? argv.dbhost : 'localhost';
-const dbuser = argv.dbuser ? argv.dbuser : 'root';
+const dbuser = argv.dbuser ? argv.dbuser : 'codepush';
 const dbport = argv.dbport ? argv.dbport : 3306;
 const { dbpassword } = argv;
 
@@ -112,7 +112,7 @@ if (command === 'init') {
             .promise();
         connection.connect();
     } catch (e) {
-        console.error('connect mysql error, check params', e);
+        console.error('MySQL 연결 오류, 입력한 설정을 확인하세요.', e);
         process.exit(1);
     }
 
@@ -122,7 +122,7 @@ if (command === 'init') {
         .then((rs) => {
             versionNo = _.get(rs, '0.version', '0.0.1');
             if (versionNo === CURRENT_DB_VERSION) {
-                console.log('Everything up-to-date.');
+                console.log('모든 항목이 최신 버전입니다.');
                 process.exit(0);
             }
             const allSqlFile = [
@@ -152,14 +152,14 @@ if (command === 'init') {
                     return prev;
                 }
                 const sql = fs.readFileSync(sqlFile.path, 'utf-8');
-                console.log(`exec sql file:${sqlFile.path}`);
+                console.log(`SQL 파일 실행 중: ${sqlFile.path}`);
                 return connection.query(sql).then(() => {
-                    console.log(`success exec sql file:${sqlFile.path}`);
+                    console.log(`SQL 파일 실행 성공: ${sqlFile.path}`);
                 });
             }, Promise.resolve());
         })
         .then(() => {
-            console.log('Upgrade success.');
+            console.log('업그레이드 성공.');
         })
         .catch((e) => {
             console.error(e);

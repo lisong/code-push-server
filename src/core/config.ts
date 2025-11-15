@@ -29,8 +29,8 @@ export const config = {
     },
     // Config for database, only support mysql.
     db: {
-        username: process.env.RDS_USERNAME || 'root',
-        password: process.env.RDS_PASSWORD || 'password',
+        username: process.env.RDS_USERNAME || 'codepush',
+        password: process.env.RDS_PASSWORD || 'codepush',
         database: process.env.RDS_DATABASE || 'codepush',
         host: process.env.RDS_HOST || '127.0.0.1',
         port: toNumber(process.env.RDS_PORT, 3306),
@@ -82,7 +82,7 @@ export const config = {
         downloadUrl:
             process.env.LOCAL_DOWNLOAD_URL ||
             process.env.DOWNLOAD_URL ||
-            'http://127.0.0.1:3000/download',
+            'http://172.30.1.85:3000/download',
         // public static download spacename.
         public: '/download',
     },
