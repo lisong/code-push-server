@@ -10,14 +10,15 @@ export const sequelize = new Sequelize(
     config.db,
 );
 
-const redisTlsUrl = config.redis.tlsUrl; // REDIS_URL 환경변수 우선 사용 (TLS 포함)
-const isTlsSupported = redisTlsUrl?.startsWith?.('rediss://');
+const redisTlsUrl = config.redis.tlsUrl; // REDIS_TLS_URL 또는 REDIS_URL
+const isTlsSupported = !!redisTlsUrl && redisTlsUrl.startsWith('rediss://');
 
 export const redisClient = redisTlsUrl
     ? createClient({
           url: redisTlsUrl,
           socket: {
               tls: isTlsSupported,
+              rejectUnauthorized: false, // `Redis Client Error: self-signed certificate in certificate chain` 오류 우회; 헤로쿠 공식문서도 이 옵션 사용으로 명시되어 있음
               reconnectStrategy: (retries: number) => {
                   if (retries > 10) {
                       return new Error('Retry count exhausted');
