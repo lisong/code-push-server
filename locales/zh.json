@@ -12,5 +12,20 @@
   "new password": "新密码",
   "please login again": "请重新登录",
   "change success": "修改成功",
-  "Logout": "登出"
+  "Logout": "登出",
+  "Register": "注册",
+  "error.input_email_required": "请您输入邮箱地址",
+  "error.input_password_required": "请您输入密码",
+  "error.invalid_credentials": "您输入的邮箱或密码有误",
+  "error.password_retry_limit_exceeded": "您输入密码错误次数超过限制，帐户已经锁定",
+  "error.email_already_registered": "该邮箱已经注册过，请更换邮箱注册",
+  "error.verify_code_expired": "验证码已经失效，请您重新获取",
+  "error.verify_code_invalid": "您输入的验证码不正确，请重新输入",
+  "error.new_password_length": "请您输入6～20位长度的新密码",
+  "error.password_length_register": "请您输入6～20位长度的密码",
+  "error.user_not_found": "未找到用户信息",
+  "error.old_password_incorrect": "您输入的旧密码不正确，请重新输入",
+  "error.app_not_exists": "应用不存在",
+  "error.permission_denied_not_owner": "权限不足，您不是该应用的 Owner",
+  "error.email_not_exists": "该邮箱不存在"
 }

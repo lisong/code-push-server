@@ -98,10 +98,10 @@ class AccountManager {
 
     login(account: string, password: string) {
         if (_.isEmpty(account)) {
-            return Promise.reject(new AppError('请您输入邮箱地址'));
+            return Promise.reject(new AppError('이메일 주소를 입력해주세요.')); // 请您输入邮箱地址
         }
         if (_.isEmpty(password)) {
-            return Promise.reject(new AppError('请您输入密码'));
+            return Promise.reject(new AppError('비밀번호를 입력해주세요.')); // 请您输入密码
         }
         let where = {};
         if (validator.isEmail(account)) {
@@ -113,7 +113,7 @@ class AccountManager {
         return Users.findOne({ where })
             .then((users) => {
                 if (_.isEmpty(users)) {
-                    throw new AppError('您输入的邮箱或密码有误');
+                    throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다.'); // 您输入的邮箱或密码有误
                 }
                 return users;
             })
@@ -122,7 +122,9 @@ class AccountManager {
                     const loginKey = `${LOGIN_LIMIT_PRE}${users.id}`;
                     return redisClient.get(loginKey).then((loginErrorTimes) => {
                         if (Number(loginErrorTimes) > tryLoginTimes) {
-                            throw new AppError(`您输入密码错误次数超过限制，帐户已经锁定`);
+                            throw new AppError(
+                                `비밀번호 오류 횟수가 제한을 초과하여 계정이 잠겼습니다.`,
+                            ); // 您输入密码错误次数超过限制，帐户已经锁定
                         }
                         return users;
                     });
@@ -142,7 +144,7 @@ class AccountManager {
                             redisClient.incr(loginKey);
                         });
                     }
-                    throw new AppError('您输入的邮箱或密码有误');
+                    throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다.'); // 您输入的邮箱或密码有误
                 } else {
                     return users;
                 }
