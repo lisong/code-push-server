@@ -194,6 +194,7 @@ class ClientManager {
                     throw new AppError('Not found deployment, check deployment key is right.');
                 }
                 const version = parseVersion(appVersion);
+                logger.info('updateCheck.parsedVersion', { version });
                 return DeploymentsVersions.findAll({
                     where: {
                         deployment_id: dep.id,

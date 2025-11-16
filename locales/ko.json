@@ -1,0 +1,17 @@
+{
+  "Please sign in": "로그인을 해주세요",
+  "email address": "이메일 주소",
+  "username": "사용자명",
+  "password": "비밀번호",
+  "Remember me": "로그인 상태 유지",
+  "Log in": "로그인",
+  "hot update server": "OTA 업데이트 서버",
+  "Change Password": "비밀번호 변경",
+  "Obtain": "발급",
+  "old password": "현재 비밀번호",
+  "new password": "새 비밀번호",
+  "please login again": "다시 로그인해주세요",
+  "change success": "변경되었습니다",
+  "Logout": "로그아웃",
+  "Register": "회원가입"
+}
