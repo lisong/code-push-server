@@ -13,13 +13,26 @@ import { config } from '../config';
 
 const streamPipeline = util.promisify(pipeline);
 
+function cleanVersion(versionNo?: string) {
+    if (typeof versionNo !== 'string') {
+        return versionNo as any;
+    }
+    // 2.10.2-dev-01 -> 2.10.2
+    return versionNo.replace(/-.*$/, '');
+}
+
+/**
+ * SEMVER 스트링을 마이너와 패치 부분 자리수가 늘어난 스트링으로 변환
+ * - 다수의 패치 횟수 보장을 위한 작업
+ */
 export function parseVersion(versionNo: string) {
     let version = '0';
     let data = null;
-    if ((data = versionNo.match(/^([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})$/))) {
+    const normalized = cleanVersion(versionNo);
+    if ((data = normalized.match(/^([0-9]{1,3}).([0-9]{1,5}).([0-9]{1,10})$/))) {
         // "1.2.3"
         version = data[1] + _.padStart(data[2], 5, '0') + _.padStart(data[3], 10, '0');
-    } else if ((data = versionNo.match(/^([0-9]{1,3}).([0-9]{1,5})$/))) {
+    } else if ((data = normalized.match(/^([0-9]{1,3}).([0-9]{1,5})$/))) {
         // "1.2"
         version = data[1] + _.padStart(data[2], 5, '0') + _.padStart('0', 10, '0');
     }
