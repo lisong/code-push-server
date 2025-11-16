@@ -78,6 +78,18 @@ function uploadFileToLocal(key: string, filePath: string, logger: Logger): Promi
 function uploadFileToS3(key: string, filePath: string, logger: Logger): Promise<void> {
     return new Promise((resolve, reject) => {
         logger.info('try uploadFileToS3', { key });
+
+        // config.s3.prefix에서 prefix 읽기
+        let prefix = _.get(config, 's3.prefix', '') as string | undefined;
+        prefix = (prefix || '').trim();
+
+        if (prefix.length > 0 && !prefix.endsWith('/')) {
+            prefix += '/';
+        }
+
+        const finalKey = prefix ? `${prefix}${key}` : key;
+        logger.info('uploadFileToS3 resolved finalKey', { key: finalKey });
+
         AWS.config.update({
             accessKeyId: _.get(config, 's3.accessKeyId'),
             secretAccessKey: _.get(config, 's3.secretAccessKey'),
@@ -92,7 +104,7 @@ function uploadFileToS3(key: string, filePath: string, logger: Logger): Promise<
             }
             s3.upload(
                 {
-                    Key: key,
+                    Key: finalKey, // prefix 적용된 key
                     Body: data,
                     ACL: 'public-read',
                     Bucket: _.get(config, 's3.bucketName'),
@@ -101,7 +113,7 @@ function uploadFileToS3(key: string, filePath: string, logger: Logger): Promise<
                     if (error) {
                         reject(new AppError(error));
                     } else {
-                        logger.info('uploadFileToS3 success', { key });
+                        logger.info('uploadFileToS3 success', { key: finalKey });
                         resolve();
                     }
                 },

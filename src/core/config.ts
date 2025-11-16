@@ -53,6 +53,7 @@ export const config = {
         region: process.env.AWS_REGION,
         // binary files download host address.
         downloadUrl: process.env.AWS_DOWNLOAD_URL || process.env.DOWNLOAD_URL,
+        prefix: process.env.AWS_S3_KEY_PREFIX, // (optional)
     },
     // Config for Aliyun OSS (https://www.aliyun.com/product/oss) when storageType value is "oss".
     oss: {

@@ -11,6 +11,7 @@ Microsoft 공식 CodePush 서비스는 아시아 지역에서 속도가 느린 �
 
 -   Node.js v24.6.0
 -   npm install -g install @shm-open/code-push-cli
+-   data, storage 이름으로 디렉토리 생성후 서버 구동
 
 ## 이 포크(Fork)에 대하여
 

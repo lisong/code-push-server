@@ -19,4 +19,6 @@ node_modules/
 .idea
 
 # environment variables
+!.env.example
 .env
+.env.*
