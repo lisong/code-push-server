@@ -36,6 +36,15 @@ export const config = {
         port: toNumber(process.env.RDS_PORT, 3306),
         dialect: 'mysql',
         logging: false,
+        dialectOptions: toBool(process.env.DB_SSL_REQUIRED)
+            ? {
+                  ssl: {
+                      require: false,
+                      // 관리형 MySQL에서 self-signed 또는 CA 정보 안 주는 경우가 많아서, 일단 빠르게 붙는 용도로 false. 추후 CA 넣어서 true로 바꾸는 게 베스트.
+                      rejectUnauthorized: toBool(process.env.DB_SSL_REJECT_UNAUTHORIZED) ?? false,
+                  },
+              }
+            : {},
     },
     // Config for qiniu (http://www.qiniu.com/) cloud storage when storageType value is "qiniu".
     qiniu: {

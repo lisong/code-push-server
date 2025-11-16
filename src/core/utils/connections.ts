@@ -44,10 +44,10 @@ export const redisClient = redisTlsUrl
 
 // 에러 로깅 (Unhandled 'error' 로 인한 앱크래시 방지)
 redisClient.on('error', (err) => {
-    logger.error('Redis Client Error', err?.message || JSON.stringify(err));
+    logger.error('Redis Client Error', { message: err?.message, stack: err?.stack });
 });
 
 // connect 시도 (커넥션 실패시 앱크래시 방지)
 redisClient.connect().catch((err) => {
-    logger.error('Redis connect error', err);
+    logger.error('Redis connect error', { message: err?.message, stack: err?.stack });
 });
