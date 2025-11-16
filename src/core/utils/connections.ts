@@ -45,9 +45,26 @@ export const redisClient = redisTlsUrl
 
 // 에러 로깅 (Unhandled 'error' 로 인한 앱크래시 방지)
 redisClient.on('error', (err) => {
-    logger.error('Redis Client Error', { message: err?.message, stack: err?.stack });
-});
+    const msg = err?.message || '';
 
+    // 무시할 에러 메시지 패턴들
+    const ignorablePatterns = [
+        'Socket closed unexpectedly',
+        // 'Connection is closed',
+    ];
+
+    // 무시 패턴과 매칭되면 스택 제외하고 info 레벨 로깅
+    if (ignorablePatterns.some((p) => msg.includes(p))) {
+        logger.info(`Redis ignorable error: ${msg}`);
+        return;
+    }
+
+    // 그 외 에러+스택 로깅
+    logger.error('Redis Client Error', {
+        message: msg,
+        stack: err?.stack,
+    });
+});
 // connect 시도 (커넥션 실패시 앱크래시 방지)
 redisClient.connect().catch((err) => {
     logger.error('Redis connect error', { message: err?.message, stack: err?.stack });
