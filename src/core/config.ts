@@ -133,6 +133,7 @@ export const config = {
         port: toNumber(process.env.REDIS_PORT, 6379),
         password: process.env.REDIS_PASSWORD,
         db: toNumber(process.env.REDIS_DB, 0),
+        tlsUrl: process.env.REDIS_TLS_URL || process.env.REDIS_URL,
     },
 } as const;
 

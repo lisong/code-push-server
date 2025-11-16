@@ -1,3 +1,4 @@
+import { logger } from 'kv-logger';
 import { createClient } from 'redis';
 import { Sequelize } from 'sequelize';
 import { config } from '../config';
@@ -9,19 +10,44 @@ export const sequelize = new Sequelize(
     config.db,
 );
 
-export const redisClient = createClient({
-    socket: {
-        host: config.redis.host,
-        port: config.redis.port,
-        reconnectStrategy: (retries) => {
-            if (retries > 10) {
-                return new Error('Retry count exhausted');
-            }
+const redisTlsUrl = config.redis.tlsUrl; // REDIS_URL 환경변수 우선 사용 (TLS 포함)
+const isTlsSupported = redisTlsUrl?.startsWith?.('rediss://');
 
-            return retries * 100;
-        },
-    },
-    password: config.redis.password,
-    database: config.redis.db,
+export const redisClient = redisTlsUrl
+    ? createClient({
+          url: redisTlsUrl,
+          socket: {
+              tls: isTlsSupported,
+              reconnectStrategy: (retries: number) => {
+                  if (retries > 10) {
+                      return new Error('Retry count exhausted');
+                  }
+                  return retries * 100;
+              },
+          },
+      })
+    : createClient({
+          socket: {
+              host: config.redis.host,
+              port: config.redis.port,
+              reconnectStrategy: (retries: number) => {
+                  if (retries > 10) {
+                      return new Error('Retry count exhausted');
+                  }
+
+                  return retries * 100;
+              },
+          },
+          password: config.redis.password,
+          database: config.redis.db,
+      });
+
+// 에러 로깅 (Unhandled 'error' 로 인한 앱크래시 방지)
+redisClient.on('error', (err) => {
+    logger.error('Redis Client Error', err?.message || JSON.stringify(err));
 });
-redisClient.connect();
+
+// connect 시도 (커넥션 실패시 앱크래시 방지)
+redisClient.connect().catch((err) => {
+    logger.error('Redis connect error', err);
+});
