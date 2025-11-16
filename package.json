@@ -21,8 +21,8 @@
     "code-push-server-db": "./bin/db.js"
   },
   "engines": {
-    "node": ">= 6.0",
-    "npm": ">= 3.10.8"
+    "node": "24.6.0",
+    "npm": "11.5.1"
   },
   "scripts": {
     "dev": "npm run build && concurrently npm:dev:tsc npm:dev:run",
