@@ -7,6 +7,8 @@ import {
     withLogLevelFilter,
 } from 'kv-logger';
 
+const env = process.env.NODE_ENV || 'development';
+
 function toBool(str: string): boolean {
     return str === 'true' || str === '1';
 }
@@ -125,8 +127,19 @@ export const config = {
         updateCheckCache: toBool(process.env.UPDATE_CHECK_CACHE),
         // options value is (true | false), when it's true, it will cache rollout results in redis
         rolloutClientUniqueIdCache: toBool(process.env.ROLLOUT_CLIENT_UNIQUE_ID_CACHE),
+        // NODE_ENV value. This determines the current running environment (e.g., development, staging, production).
+        env,
+        /**
+         * whitelist for allowing access to the web UI.
+         * When in production or when registration is disabled, only IPs listed here will be allowed to access the web UI.
+         * The value should be a comma-separated list of IP addresses, e.g., "127.0.0.1,10.0.0.1".
+         */
+        webUIWhitelist: (process.env.WEB_UI_WHITELIST || '')
+            .split(',')
+            .map((ip) => ip.trim())
+            .filter(Boolean),
     },
-    // Config for smtp email，register module need validate user email project source https://github.com/nodemailer/nodemailer
+    // Config for smtp email, register module need validate user email project source https://github.com/nodemailer/nodemailer
     smtpConfig: {
         host: process.env.SMTP_HOST,
         port: toNumber(process.env.SMTP_PORT, 465),
@@ -153,7 +166,6 @@ setLogTransports(
     ),
 );
 
-const env = process.env.NODE_ENV || 'development';
 logger.info(`use config`, {
     env,
     storageType: config.common.storageType,

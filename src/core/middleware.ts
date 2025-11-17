@@ -10,6 +10,7 @@ import { Users, UsersInterface } from '../models/users';
 import { AppError, Unauthorized } from './app-error';
 import { config } from './config';
 import { t } from './i18n';
+import { shouldHideWebUI } from './utils/common';
 import { parseToken, md5 } from './utils/security';
 
 export type LocaleI18n = 'en' | 'ko' | 'zh';
@@ -163,4 +164,50 @@ export function i18nMiddleware(req: Req, res: Res, next: NextFunction) {
     req.t = (key: string, vars?: Record<string, any>) => t(locale, key, vars);
 
     next();
+}
+
+export function webUiGuard(req: Req, res: Response, next: NextFunction) {
+    if (!shouldHideWebUI()) {
+        return next();
+    }
+
+    req.logger?.info?.('blocked web UI access', {
+        path: req.path,
+        method: req.method,
+    });
+
+    return res.status(405).send('Method Not Allowed');
+}
+
+export function ipWhitelistOnly(req: Req, res: Response, next: NextFunction) {
+    const whitelist = config.common.webUIWhitelist || [];
+
+    if (!Array.isArray(whitelist) || whitelist.length === 0) {
+        return next();
+    }
+
+    const defaultIp = req.ip;
+    const forwardedFor = req.headers['x-forwarded-for'];
+
+    const realIp = Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : forwardedFor?.split(',')[0]?.trim() || defaultIp;
+
+    const isAllowed = whitelist.includes(realIp);
+
+    if (!isAllowed) {
+        req.logger?.info?.('IP whitelist blocked', {
+            requestIp: realIp,
+            path: req.path,
+        });
+
+        return res.status(403).send('Forbidden');
+    }
+
+    req.logger?.info?.('IP whitelist allowed', {
+        requestIp: realIp,
+        path: req.path,
+    });
+
+    return next();
 }

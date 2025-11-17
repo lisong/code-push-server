@@ -1,12 +1,17 @@
 import express from 'express';
 import { AppError } from '../core/app-error';
 import { i18n } from '../core/i18n';
-import { checkToken, Req } from '../core/middleware';
+import { checkToken, ipWhitelistOnly, Req, webUiGuard } from '../core/middleware';
 import { clientManager } from '../core/services/client-manager';
 
 export const indexRouter = express.Router();
 
-indexRouter.get('/', (req, res) => {
+/**
+ * 프로덕션 레벨 미들웨어 적용
+ * - ipWhitelistOnly: IP주소 검사
+ * - webUiGuard: NODE_ENV='production' OR ALLOW_REGISTRATION='true'
+ */
+indexRouter.get('/', [ipWhitelistOnly, webUiGuard], (req, res) => {
     res.render('index', { title: 'CodePushServer' });
 });
 

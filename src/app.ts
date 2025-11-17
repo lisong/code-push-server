@@ -8,7 +8,14 @@ import { logger } from 'kv-logger';
 import { AppError, NotFound } from './core/app-error';
 import { config } from './core/config';
 import { i18n } from './core/i18n';
-import { i18nMiddleware, Req, Res, withLogger } from './core/middleware';
+import {
+    i18nMiddleware,
+    ipWhitelistOnly,
+    Req,
+    Res,
+    webUiGuard,
+    withLogger,
+} from './core/middleware';
 import { accessKeysRouter } from './routes/accessKeys';
 import { accountRouter } from './routes/account';
 import { appsRouter } from './routes/apps';
@@ -89,8 +96,8 @@ app.use('/accessKeys', accessKeysRouter);
 app.use('/apps', appsRouter);
 app.use('/account', accountRouter);
 // code-push-server routes
-app.use('/auth', authRouter);
-app.use('/users', usersRouter);
+app.use('/auth', [ipWhitelistOnly, webUiGuard], authRouter);
+app.use('/users', [ipWhitelistOnly, webUiGuard], usersRouter);
 
 // 404 handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
