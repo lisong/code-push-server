@@ -5,7 +5,7 @@ import validator from 'validator';
 import { findCollaboratorsByAppNameAndUid } from '../../models/collaborators';
 import { UserTokens } from '../../models/user_tokens';
 import { Users } from '../../models/users';
-import { AppError } from '../app-error';
+import { AppError, AppErrorI18n } from '../app-error';
 import { config } from '../config';
 import { redisClient } from '../utils/connections';
 import { passwordVerifySync, randToken, md5, passwordHashSync } from '../utils/security';
@@ -98,10 +98,10 @@ class AccountManager {
 
     login(account: string, password: string) {
         if (_.isEmpty(account)) {
-            return Promise.reject(new AppError('이메일 주소를 입력해주세요.')); // 请您输入邮箱地址
+            return Promise.reject(new AppErrorI18n('error.input_email_required'));
         }
         if (_.isEmpty(password)) {
-            return Promise.reject(new AppError('비밀번호를 입력해주세요.')); // 请您输入密码
+            return Promise.reject(new AppErrorI18n('error.input_password_required'));
         }
         let where = {};
         if (validator.isEmail(account)) {
@@ -113,7 +113,7 @@ class AccountManager {
         return Users.findOne({ where })
             .then((users) => {
                 if (_.isEmpty(users)) {
-                    throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다.'); // 您输入的邮箱或密码有误
+                    throw new AppErrorI18n('error.invalid_credentials');
                 }
                 return users;
             })
@@ -122,9 +122,7 @@ class AccountManager {
                     const loginKey = `${LOGIN_LIMIT_PRE}${users.id}`;
                     return redisClient.get(loginKey).then((loginErrorTimes) => {
                         if (Number(loginErrorTimes) > tryLoginTimes) {
-                            throw new AppError(
-                                `비밀번호 오류 횟수가 제한을 초과하여 계정이 잠겼습니다.`,
-                            ); // 您输入密码错误次数超过限制，帐户已经锁定
+                            throw new AppErrorI18n('error.password_retry_limit_exceeded');
                         }
                         return users;
                     });
@@ -144,7 +142,7 @@ class AccountManager {
                             redisClient.incr(loginKey);
                         });
                     }
-                    throw new AppError('이메일 또는 비밀번호가 올바르지 않습니다.'); // 您输入的邮箱或密码有误
+                    throw new AppErrorI18n('error.invalid_credentials');
                 } else {
                     return users;
                 }
@@ -153,16 +151,16 @@ class AccountManager {
 
     sendRegisterCode(email: string) {
         if (_.isEmpty(email)) {
-            return Promise.reject(new AppError('请您输入邮箱地址'));
+            return Promise.reject(new AppErrorI18n('error.input_email_required'));
         }
         return Users.findOne({ where: { email } })
             .then((u) => {
                 if (u) {
-                    throw new AppError(`"${email}" 已经注册过，请更换邮箱注册`);
+                    throw new AppErrorI18n('error.email_already_registered', { email });
                 }
             })
             .then(() => {
-                // 将token临时存储到redis
+                // Store the token temporarily in Redis
                 const token = randToken(40);
                 return redisClient
                     .setEx(`${REGISTER_CODE}${md5(email)}`, EXPIRED, token)
@@ -171,7 +169,7 @@ class AccountManager {
                     });
             })
             .then((token) => {
-                // 将token发送到用户邮箱
+                // Send the token to user's email
                 return emailManager.sendRegisterCodeMail(email, token);
             });
     }
@@ -180,14 +178,14 @@ class AccountManager {
         return Users.findOne({ where: { email } })
             .then((u) => {
                 if (u) {
-                    throw new AppError(`"${email}" 已经注册过，请更换邮箱注册`);
+                    throw new AppErrorI18n('error.email_already_registered', { email });
                 }
             })
             .then(() => {
                 const registerKey = `${REGISTER_CODE}${md5(email)}`;
                 return redisClient.get(registerKey).then((storageToken) => {
                     if (_.isEmpty(storageToken)) {
-                        throw new AppError(`验证码已经失效，请您重新获取`);
+                        throw new AppErrorI18n('error.verify_code_expired');
                     }
                     if (!_.eq(token, storageToken)) {
                         redisClient.ttl(registerKey).then((ttl) => {
@@ -195,7 +193,7 @@ class AccountManager {
                                 redisClient.expire(registerKey, ttl - EXPIRED_SPEED);
                             }
                         });
-                        throw new AppError(`您输入的验证码不正确，请重新输入`);
+                        throw new AppErrorI18n('error.verify_code_invalid');
                     }
                     return storageToken;
                 });
@@ -206,7 +204,7 @@ class AccountManager {
         return Users.findOne({ where: { email } })
             .then((u) => {
                 if (u) {
-                    throw new AppError(`"${email}" 已经注册过，请更换邮箱注册`);
+                    throw new AppErrorI18n('error.email_already_registered', { email });
                 }
             })
             .then(() => {
@@ -221,19 +219,19 @@ class AccountManager {
 
     changePassword(uid: number, oldPassword: string, newPassword: string) {
         if (!_.isString(newPassword) || newPassword.length < 6) {
-            return Promise.reject(new AppError('请您输入6～20位长度的新密码'));
+            return Promise.reject(new AppErrorI18n('error.new_password_length'));
         }
         return Users.findOne({ where: { id: uid } })
             .then((u) => {
                 if (!u) {
-                    throw new AppError(`未找到用户信息`);
+                    throw new AppErrorI18n('error.user_not_found');
                 }
                 return u;
             })
             .then((u) => {
                 const isEq = passwordVerifySync(oldPassword, u.get('password'));
                 if (!isEq) {
-                    throw new AppError(`您输入的旧密码不正确，请重新输入`);
+                    throw new AppErrorI18n('error.old_password_incorrect');
                 }
                 u.set('password', passwordHashSync(newPassword));
                 u.set('ack_code', randToken(5));

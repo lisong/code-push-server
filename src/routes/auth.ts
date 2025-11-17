@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
-import { AppError } from '../core/app-error';
+import { AppErrorI18n } from '../core/app-error';
 import { config } from '../core/config';
 import { Req } from '../core/middleware';
 import { accountManager } from '../core/services/account-manager';
@@ -70,12 +70,21 @@ authRouter.post(
                 res.send({ status: 'OK', results: { tokens: token } });
             })
             .catch((e) => {
-                if (e instanceof AppError) {
+                if (e instanceof AppErrorI18n) {
+                    const { messageKey, messageVars } = e;
+                    const message =
+                        typeof req.t === 'function' ? req.t(messageKey, messageVars) : messageKey; // fallback
+
                     logger.info('login failed', {
                         account,
-                        error: e.message,
+                        error: message,
+                        messageKey,
                     });
-                    res.send({ status: 'ERROR', message: e.message });
+                    res.send({
+                        status: 'ERROR',
+                        message,
+                        code: messageKey,
+                    });
                 } else {
                     next(e);
                 }

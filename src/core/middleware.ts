@@ -9,7 +9,10 @@ import { UserTokens } from '../models/user_tokens';
 import { Users, UsersInterface } from '../models/users';
 import { AppError, Unauthorized } from './app-error';
 import { config } from './config';
+import { t } from './i18n';
 import { parseToken, md5 } from './utils/security';
+
+export type LocaleI18n = 'en' | 'ko' | 'zh';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Req<P = Record<string, string>, B = any, Q = Record<string, string | string[]>>
@@ -17,6 +20,8 @@ export interface Req<P = Record<string, string>, B = any, Q = Record<string, str
     extends Request<P, any, B, Partial<Q>> {
     users: UsersInterface;
     logger: Logger;
+    lang?: LocaleI18n;
+    t?: (key: string, vars?: Record<string, any>) => string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-explicit-any
@@ -140,4 +145,22 @@ export function checkToken(req: Req, res: Res, next: NextFunction) {
                 next(e);
             }
         });
+}
+
+function getLocaleFromReq(req: Req): LocaleI18n {
+    const langHeader = (req.headers['x-lang'] || req.headers['accept-language'] || '').toString();
+
+    if (langHeader.startsWith('ko')) {
+        return 'ko';
+    }
+    return 'en';
+}
+
+export function i18nMiddleware(req: Req, res: Res, next: NextFunction) {
+    const locale = getLocaleFromReq(req);
+
+    req.lang = locale;
+    req.t = (key: string, vars?: Record<string, any>) => t(locale, key, vars);
+
+    next();
 }

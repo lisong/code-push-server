@@ -9,11 +9,18 @@ Microsoft 공식 CodePush 서비스는 아시아 지역에서 속도가 느린 �
 
 ## Requirement
 
--   Node.js v24.6.0
+-   Node.js v24.6.0 by package.json > engines
 -   npm install -g install @shm-open/code-push-cli
 -   data, storage 이름으로 디렉토리 생성후 서버 구동
--   앱테스터 semver 포맷 지원을 위해 parseVersion 유틸함수 일부 수정 &rarr; cleanVersion 선행
-    > e.g., '2.10.2-stg-01' &rarr; '2.10.2'
+
+## Key Changes
+
+-   `AppErrorI18n` 클래스를 추가하여 에러 메시지를 포함한 다양한 텍스트에 대한 다국어(i18n) 지원을 제공함.
+-   요청(Request) 컨텍스트에 `i18n` 유틸리티와 `lang` 필드를 추가하여 라우터 및 서비스 계층에서 일관된 번역 기능을 활용할 수 있도록 개선함.
+-   JSON 파일을 import하는 경우 TypeScript가 `src` 외부 디렉터리를 소스 경로로 포함하게 되어 `bin/locales` 및 `bin/src` 디렉터리가 생성되는 문제가 발생함.
+-   기존 `bin` 디렉터리의 구조를 변경하지 않기 위해, i18n 관련 리소스(`locales` 디렉터리)를 `src/locales`로 이동하여 빌드 결과물을 안정적으로 유지함.
+-   App Tester의 semver 포맷 처리를 개선하기 위해 `parseVersion` 유틸 함수를 수정하고, `cleanVersion` 과정을 선행하도록 구조를 보완함.
+    -   e.g., `'2.10.2-stg-01'` &rarr; `'2.10.2'`
 
 ## 이 포크(Fork)에 대하여
 

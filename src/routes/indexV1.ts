@@ -45,7 +45,7 @@ indexV1Router.get(
                 logger,
             )
             .then((rs) => {
-                // 灰度检测
+                // 그레이 릴리즈(Gray Release, 灰度检测, 점진적 배포대상) 체크 === 현재 유저가 이 업데이트를 받을 대상인지 판별하는 과정
                 return clientManager
                     .chosenMan(rs.packageId, rs.rollout, clientUniqueId)
                     .then((data) => {

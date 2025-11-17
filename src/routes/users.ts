@@ -1,6 +1,6 @@
 import express from 'express';
 import _ from 'lodash';
-import { AppError } from '../core/app-error';
+import { AppError, AppErrorI18n } from '../core/app-error';
 import { checkToken, Req } from '../core/middleware';
 import { accountManager } from '../core/services/account-manager';
 import { Users } from '../models/users';
@@ -35,7 +35,7 @@ usersRouter.post(
             .checkRegisterCode(email, token)
             .then(() => {
                 if (_.isString(password) && password.length < 6) {
-                    throw new AppError('请您输入6～20位长度的密码');
+                    throw new AppErrorI18n('error.password_length_register');
                 }
                 return accountManager.register(email, password);
             })
@@ -56,8 +56,9 @@ usersRouter.post(
 
 usersRouter.get('/exists', (req: Req<void, void, { email: string }>, res, next) => {
     const email = _.trim(req.query.email);
+    const emailRequiredMessage = req.t('error.input_email_required');
     if (!email) {
-        res.send({ status: 'ERROR', message: '请您输入邮箱地址' });
+        res.send({ status: 'ERROR', message: emailRequiredMessage });
         return;
     }
     Users.findOne({ where: { email } })
@@ -114,7 +115,7 @@ usersRouter.get(
     },
 );
 
-// 修改密码
+// Change Password
 usersRouter.patch(
     '/password',
     checkToken,

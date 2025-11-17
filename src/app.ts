@@ -8,7 +8,7 @@ import { logger } from 'kv-logger';
 import { AppError, NotFound } from './core/app-error';
 import { config } from './core/config';
 import { i18n } from './core/i18n';
-import { Req, Res, withLogger } from './core/middleware';
+import { i18nMiddleware, Req, Res, withLogger } from './core/middleware';
 import { accessKeysRouter } from './routes/accessKeys';
 import { accountRouter } from './routes/account';
 import { appsRouter } from './routes/apps';
@@ -47,6 +47,9 @@ app.all('*', (req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,PATCH,DELETE,OPTIONS');
     next();
 });
+
+// i18n 미들웨어 (req.lang, req.t 세팅)
+app.use(i18nMiddleware);
 
 logger.debug(`config common.storageType value: ${config.common.storageType}`);
 
