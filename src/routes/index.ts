@@ -12,11 +12,13 @@ indexRouter.get('/', (req, res) => {
 
 indexRouter.get('/healthcheck', (req: Req, res) => {
     const message = req.t('hot update server');
+    const timestamp = new Date().toISOString();
+
     res.status(200).json({
         success: true,
         lang: req.lang,
         message,
-        timestamp: new Date().toISOString(),
+        timestamp,
     });
 });
 

@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+
+import { S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
+
 import ALYOSSStream from 'aliyun-oss-upload-stream';
 import ALY from 'aliyun-sdk';
-import AWS from 'aws-sdk';
 import COS from 'cos-nodejs-sdk-v5';
 import fsextra from 'fs-extra';
 import { Logger } from 'kv-logger';
@@ -90,35 +93,50 @@ function uploadFileToS3(key: string, filePath: string, logger: Logger): Promise<
         const finalKey = prefix ? `${prefix}${key}` : key;
         logger.info('uploadFileToS3 resolved finalKey', { key: finalKey });
 
-        AWS.config.update({
-            accessKeyId: _.get(config, 's3.accessKeyId'),
-            secretAccessKey: _.get(config, 's3.secretAccessKey'),
-            sessionToken: _.get(config, 's3.sessionToken'),
-            region: _.get(config, 's3.region'),
+        const accessKeyId = _.get(config, 's3.accessKeyId');
+        const secretAccessKey = _.get(config, 's3.secretAccessKey');
+        const sessionToken = _.get(config, 's3.sessionToken');
+        const region = _.get(config, 's3.region');
+        const bucketName = _.get(config, 's3.bucketName');
+
+        if (!accessKeyId || !secretAccessKey) {
+            reject(new AppError('Invalid AWS Credentials'));
+            return;
+        }
+
+        const s3Client = new S3Client({
+            region,
+            credentials: {
+                accessKeyId,
+                secretAccessKey,
+                ...(sessionToken && { sessionToken }),
+            },
         });
-        const s3 = new AWS.S3();
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                reject(new AppError(err));
-                return;
-            }
-            s3.upload(
-                {
-                    Key: finalKey, // prefix 적용된 key
-                    Body: data,
-                    ACL: 'public-read',
-                    Bucket: _.get(config, 's3.bucketName'),
-                },
-                (error: Error) => {
-                    if (error) {
-                        reject(new AppError(error));
-                    } else {
-                        logger.info('uploadFileToS3 success', { key: finalKey });
-                        resolve();
-                    }
-                },
-            );
+
+        const bodyStream = fs.createReadStream(filePath);
+
+        const upload = new Upload({
+            client: s3Client,
+            params: {
+                Bucket: bucketName,
+                Key: finalKey, // prefix 적용된 key
+                Body: bodyStream,
+                ACL: 'public-read', // 구버전 함수의 ACL 유지
+            },
         });
+
+        upload
+            .done()
+            .then(() => {
+                logger.info('uploadFileToS3 success', { key: finalKey });
+                resolve();
+            })
+            .catch((error: unknown) => {
+                if (error instanceof Error) {
+                    reject(new AppError(error));
+                }
+                reject(new AppError(String(error)));
+            });
     });
 }
 
