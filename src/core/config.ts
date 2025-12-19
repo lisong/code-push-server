@@ -138,6 +138,8 @@ export const config = {
             .split(',')
             .map((ip) => ip.trim())
             .filter(Boolean),
+        // options value is (true | false), when it's true, web UI routes are enabled (still restricted by IP whitelist if configured)
+        webUIAllow: toBool(process.env.WEB_UI_ALLOW),
     },
     // Config for smtp email, register module need validate user email project source https://github.com/nodemailer/nodemailer
     smtpConfig: {

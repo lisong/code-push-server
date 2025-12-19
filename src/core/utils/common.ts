@@ -13,13 +13,11 @@ import { config } from '../config';
 
 const streamPipeline = util.promisify(pipeline);
 
-/** 프로덕션이거나, ALLOW_REGISTRATION !== true 이면 UI 숨김 */
+/** WEB_UI_ALLOW !== true 이면 UI 숨김 */
 export function shouldHideWebUI(): boolean {
-    const env = config.common.env || process.env.NODE_ENV;
-    const isProdEnv = env === 'production';
-    const allowRegistration = Boolean(config.common.allowRegistration);
+    const allowWebUiInProd = config.common.webUIAllow;
 
-    return isProdEnv || !allowRegistration;
+    return !allowWebUiInProd;
 }
 
 function cleanVersion(versionNo?: string) {
