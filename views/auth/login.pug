@@ -1,23 +1,36 @@
-extends ../layout
+extends ../common
+
 block css
   link(rel='stylesheet', href='/stylesheets/signin.css')
 
 block content
   .container
     form#form.form-signin(method="post")
-      h2.form-signin-heading 请登录
-      label.sr-only(for="inputEmail") 邮箱地址／用户名
-      input#inputEmail.form-control(type="text" name="account" placeholder="邮箱地址／用户名" required autofocus)
-      label.sr-only(for="inputPassword") 密码
-      input#inputPassword.form-control(type="password" name="password" placeholder="密码" required)
-      .checkbox
-        label
-          input(type="checkbox" value="remember-me")
-          span 记住我
-      a#submitBtn.btn.btn-lg.btn-primary.btn-block 登录
+      h2.form-signin-heading #{__('Please sign in')}
+      label.sr-only(for="inputEmail") #{__('email address')}／#{__('username')}
+      input#inputEmail.form-control(type="text" name="account" placeholder=`${__('email address')}／${__('username')}` value=email required autofocus)
+      label.sr-only(for="inputPassword") #{__('password')}
+      input#inputPassword.form-control(type="password" name="password" placeholder=`${__('password')}` required)
+      a#submitBtn.btn.btn-lg.btn-primary.btn-block #{__('Log in')}
+      if showRegister
+        a#registerBtn.btn.btn-lg.btn-primary.btn-block(href="/auth/register" type="button") #{__('Register')}
 
 block js
   script().
+    function onLoggedIn() {
+        var query = parseQuery()
+        if (query.hostname) {
+            // come from code-push-cli login
+            location.href = '/tokens/' + location.search;
+        } else {
+            location.href = '/';
+        }
+    }
+
+    if (getAccessToken()) {
+        onLoggedIn();
+    }
+
     var submit = false;
     $('#submitBtn').on('click', function () {
       if (submit) {
@@ -31,11 +44,11 @@ block js
         dataType: 'json',
         success: function (data) {
           if (data.status == "OK") {
-            sessionStorage.setItem('auth', data.results.tokens)
+            localStorage.setItem('auth', data.results.tokens)
             submit = false;
-            location.href = '/tokens/' + location.search;
+            onLoggedIn();
           } else {
-            alert(data.errorMessage);
+            alert(data.message);
             submit = false;
           }
         }

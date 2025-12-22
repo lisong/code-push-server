@@ -7,15 +7,18 @@ pids
 *.pid
 *.seed
 *.DS_Store
+bin/
+.nyc_output/
 
-.grunt
+# deps
+node_modules/
 
-# Dependency directory
-# https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
-node_modules
-
-coverage
 
 # vs code
 .history
 .idea
+
+# environment variables
+!.env.example
+.env
+.env.*

@@ -1,32 +1,17 @@
-extends ../layout
+extends ../common
+
 block css
   link(rel='stylesheet', href='/stylesheets/signin.css')
 
 block content
   .container
     form#form.form-signin(method="post")
-      h2.form-signin-heading Please sign in
-      label.sr-only(for="inputEmail") Email address
-      input#inputEmail.form-control(type="text" name="account" placeholder="Email address" required autofocus)
-      label.sr-only(for="inputPassword") Password
-      input#inputPassword.form-control(type="password" name="password" placeholder="Password" required)
-      .checkbox
-        label
-          input(type="checkbox" value="remember-me")
-          span Remember me
-      a#submitBtn.btn.btn-lg.btn-primary.btn-block Sign in
+      h2.form-signin-heading Please register
+      .form-group
+        label.sr-only(for="inputEmail") Email address
+        input#inputEmail.form-control(type="text" name="email" placeholder="Email address" value=email required autofocus)
+      a#submitBtn.btn.btn-lg.btn-primary.btn-block Register
 
-    #myModal.modal.fade.bs-example-modal-sm(tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel")
-      .modal-dialog.modal-md
-        .modal-content
-          .modal-header
-            button.close(data-dismiss="modal" aria-label="Close")
-              span(aria-hidden="true") ×
-            h4#mySmallModalLabel.modal-title login token
-          .modal-body  ...
-          .modal-footer
-            button.btn.btn-default(type="button" data-dismiss="modal") Close
-            button.btn.btn-primary(type="button" data-dismiss="modal") OK
 block js
   script().
     var submit = false;
@@ -38,19 +23,17 @@ block js
       $.ajax({
         type: 'post',
         data: $('#form').serializeArray(),
-        url: $('#form').attr('action'),
+        url: "/users/registerCode",
         dataType: 'json',
         success: function (data) {
             if (data.status == "OK") {
-              myModal = $('#myModal');
-              myModal.find(".modal-body").text(data.results.tokens)
-              myModal.modal('show');
+              let email = $('#inputEmail').val();
+              location.href = '/auth/confirm?email=' + email;
               submit = false;
             } else {
-              alert(data.errorMessage);
+              alert(data.message);
               submit = false;
             }
         }
       });
     });
-

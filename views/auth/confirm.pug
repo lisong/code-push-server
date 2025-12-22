@@ -1,0 +1,61 @@
+extends ../common
+
+block css
+  link(rel='stylesheet', href='/stylesheets/signin.css')
+
+block content
+  .container
+    form#form.form-signin(method="post")
+      h2.form-signin-heading Please confirm your token and create a password
+      .form-group
+        label.sr-only(for="inputEmail") Email address
+        input#inputEmail.form-control(type="text" name="email" placeholder="Email address" value=email required readonly=email ? true : false)
+      .form-group
+        label.sr-only(for="inputToken") Token
+        input#inputToken.form-control(type="text" name="token" placeholder="Token" required autofocus)
+      .form-group
+        label.sr-only(for="inputPassword") Create password
+        input#inputPassword.form-control(type="password" name="password" placeholder="Password" required)
+      a#submitBtn.btn.btn-lg.btn-primary.btn-block Confirm
+
+    #myModal.modal.fade.bs-example-modal-sm(tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel")
+      .modal-dialog.modal-md
+        .modal-content
+          .modal-header
+            button.close(data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true") ×
+            h4#mySmallModalLabel.modal-title Registration complete
+          .modal-body  Please proceed to login.
+          .modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Close
+            button#okBtn.btn.btn-primary(type="button" data-dismiss="modal") OK
+block js
+  script().
+    $('#okBtn').on('click', function () {
+      location.href = '/auth/login?email=' + $('#inputEmail').val();
+    });
+
+    var submit = false;
+    $('#submitBtn').on('click', function () {
+      if (submit) {
+        return ;
+      }
+      console.log($('#form').serializeArray());
+      submit = true;
+      $.ajax({
+        type: 'post',
+        data: $('#form').serializeArray(),
+        url: "/users/",
+        dataType: 'json',
+        success: function (data) {
+          if (data.status == "OK") {
+            myModal = $('#myModal');
+            myModal.modal('show');
+            submit = false;
+          } else {
+            alert(data.message);
+            submit = false;
+          }
+        }
+      });
+    });

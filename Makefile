@@ -1,27 +1,23 @@
-ROOT=$(shell pwd)
+ROOT := $(shell pwd)
+VERSION := $(shell node -p "require('./package.json').version")
 
-test: test-integration
-
-# test-unit:
-# 	@echo "\nRunning unit tests..."
-# 	@NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js mocha test/unit --recursive
-
-test-integration:
+.PHONY: test
+test:
 	@echo "\nRunning integration tests..."
-	@NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js mocha test/api/init
-	@NODE_ENV=test PORT=3000 HOST=127.0.0.1 CONFIG_FILE=${ROOT}/config/config.test.js node bin/www &
-	@NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js mocha \
-	test/api/users test/api/auth test/api/account test/api/accessKeys test/api/apps test/api/index --recursive --timeout 15000
-
-coverage:
-	@echo "\n\nRunning coverage report..."
-	rm -rf coverage
-	# @NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js ./node_modules/istanbul/lib/cli.js cover --report lcovonly --dir coverage/core ./node_modules/.bin/_mocha \
-	# 	test/unit -- -R spec --recursive --timeout 15000
-	@NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js mocha test/api/init
-	@NODE_ENV=test PORT=3000 HOST=127.0.0.1 CONFIG_FILE=${ROOT}/config/config.test.js node bin/www &
-	@NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js ./node_modules/istanbul/lib/cli.js cover --report lcovonly --dir coverage/api ./node_modules/.bin/_mocha \
-	test/api/users test/api/auth test/api/account test/api/accessKeys test/api/apps test/api/index -- -R spec --recursive --timeout 15000
-	@NODE_ENV=test CONFIG_FILE=${ROOT}/config/config.test.js ./node_modules/istanbul/lib/cli.js report
+	@mocha tests/api/init --exit
+	@mocha tests/api/users tests/api/auth tests/api/account tests/api/accessKeys tests/api/apps tests/api/index --exit --recursive --timeout 30000
 
 .PHONY: coverage
+coverage:
+	@echo "\nCheck test coverage..."
+	@mocha tests/api/init --exit
+	@nyc mocha tests/api/users tests/api/auth tests/api/account tests/api/accessKeys tests/api/apps tests/api/index --exit --recursive --timeout 30000
+
+.PHONY: release-docker
+release-docker:
+	@echo "\nBuilding docker image..."
+	docker pull node:lts-alpine
+	docker build --build-arg VERSION=${VERSION} -t shmopen/code-push-server:latest --no-cache .
+	docker tag shmopen/code-push-server:latest shmopen/code-push-server:${VERSION}
+	docker push shmopen/code-push-server:${VERSION}
+	docker push shmopen/code-push-server:latest

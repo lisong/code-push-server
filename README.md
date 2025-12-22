@@ -1,99 +1,76 @@
-# CodePush Server [source](https://github.com/lisong/code-push-server) 
+# CodePush Server ![Node.js CI](https://github.com/shm-open/code-push-server/workflows/Node.js%20CI/badge.svg)
 
-[![NPM](https://nodei.co/npm/code-push-server.svg?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/code-push-server/)
+[[Korean version 한국어]](./README.ko.md) [[Chinese version 中文版]](./README.cn.md)
 
-[![NPM Version](https://img.shields.io/npm/v/code-push-server.svg)](https://npmjs.org/package/code-push-server)
-[![Node.js Version](https://img.shields.io/node/v/code-push-server.svg)](https://nodejs.org/en/download/)
-[![Linux Status](https://img.shields.io/travis/lisong/code-push-server/master.svg?label=linux)](https://travis-ci.org/lisong/code-push-server)
-[![Windows Status](https://img.shields.io/appveyor/ci/lisong/code-push-server/master.svg?label=windows)](https://ci.appveyor.com/project/lisong/code-push-server)
-[![Coverage Status](https://img.shields.io/coveralls/lisong/code-push-server/master.svg)](https://coveralls.io/github/lisong/code-push-server)
-[![Dependency Status](https://img.shields.io/david/lisong/code-push-server.svg)](https://david-dm.org/lisong/code-push-server)
-[![Known Vulnerabilities](https://snyk.io/test/npm/code-push-server/badge.svg)](https://snyk.io/test/npm/code-push-server)
-[![Licenses](https://img.shields.io/npm/l/code-push-server.svg)](https://spdx.org/licenses/MIT)
+CodePush Server is a CodePush program server. The official Microsoft CodePush service is slow in China, therefore we use this to host our own server.
 
-CodePush Server is a CodePush progam server! microsoft CodePush cloud is slow in China, we can use this to build our's. I use [qiniu](http://www.qiniu.com/) to store the files, because it's simple and quick!  Or you can use [local/s3/oss/tencentcloud] storage, just modify config.js file, it's simple configure.
+## About this fork
 
+Since the original [code-push-server](https://github.com/lisong/code-push-server) project is not actively maintained, we created this fork to:
 
-## Support Storage mode 
+-   keep dependencies up-to-date
+-   fix any compatibility issue with latest official code-push clients
+-   we only stick to official react-native-code-push client, therefore the customized feature like [is_use_diff_text](https://github.com/lisong/code-push-server#advance-feature) won't be supported.
+-   we only use react-native-code-push client in production, most of the feature should be no difference for the rest CodePush clients, but if you found any, issues and PRs are always welcome.
 
-- local *storage bundle file in local machine*
-- qiniu *storage bundle file in [qiniu](http://www.qiniu.com/)*
-- s3 *storage bundle file in [aws](https://aws.amazon.com/)*
-- oss *storage bundle file in [aliyun](https://www.aliyun.com/product/oss)*
-- tencentcloud *storage bundle file in [tencentcloud](https://cloud.tencent.com/product/cos)*
+## Support Storage mode
 
-## 正确使用code-push热更新
+-   local: store bundle files in local machine
+-   qiniu: store bundle files in [qiniu](http://www.qiniu.com/)
+-   s3: store bundle files in [aws](https://aws.amazon.com/)
+-   oss: store bundle files in [aliyun](https://www.aliyun.com/product/oss)
+-   tencentcloud: store bundle files in [tencentcloud](https://cloud.tencent.com/product/cos)
 
-- 苹果App允许使用热更新[Apple's developer agreement](https://developer.apple.com/programs/ios/information/iOS_Program_Information_4_3_15.pdf), 为了不影响用户体验，规定必须使用静默更新。 Google Play不能使用静默更新，必须弹框告知用户App有更新。中国的android市场必须采用静默更新（如果弹框提示，App会被“请上传最新版本的二进制应用包”原因驳回）。
-- react-native 不同平台bundle包不一样，在使用code-push-server的时候必须创建不同的应用来区分(eg. CodePushDemo-ios 和 CodePushDemo-android)
-- react-native-code-push只更新资源文件,不会更新java和Objective C，所以npm升级依赖包版本的时候，如果依赖包使用的本地化实现, 这时候必须更改应用版本号(ios修改Info.plist中的CFBundleShortVersionString, android修改build.gradle中的versionName), 然后重新编译app发布到应用商店。
-- 推荐使用code-push release-react 命令发布应用，该命令合并了打包和发布命令(eg. code-push release-react CodePushDemo-ios ios -d Production)
-- 每次向App Store提交新的版本时，也应该基于该提交版本同时向code-push-server发布一个初始版本。(因为后面每次向code-push-server发布版本时，code-puse-server都会和初始版本比较，生成补丁版本)
+## Correct use of code-push hot update
 
+-   Apple App allows the use of hot updates [Apple's developer agreement](https://developer.apple.com/programs/ios/information/iOS_Program_Information_4_3_15.pdf), in order not to affect the user experience, it is stipulated that silent updates must be used. Google Play cannot use silent updates, and a pop-up box must inform users that there is an update to the app. China's android market must use silent updates (if the pop-up box prompts, the app will be rejected by the reason of "please upload the latest version of the binary application package").
+-   The bundles of react-native are different for different platforms. When using code-push-server, you must create different applications to distinguish them (eg. CodePushDemo-ios and CodePushDemo-android)
+-   react-native-code-push only updates resource files, not java and Objective C, so when npm upgrades the version of the dependent package, if the localized implementation used by the dependent package, the application version number must be changed at this time (ios modify Info CFBundleShortVersionString in .plist, android modify versionName in build.gradle), then recompile the app and publish it to the app store.
+-   It is recommended to use the code-push release-react command to release the application, which combines the packaging and release commands (eg. code-push release-react CodePushDemo-ios ios -d Production)
+-   Every time a new version is submitted to the App Store, an initial version should also be released to code-push-server based on the submitted version. (Because every time a version is released to code-push-server, code-puse-server will compare it with the initial version to generate a patch version)
 
-### shell login
+### CodePush Cli
 
-```shell
-$ code-push login http://api.code-push.com #登录
+check out the [code-push-cli](https://github.com/shm-open/code-push-cli) which works with server for manage apps and publish releases
+
+### Clients
+
+-   [React Native](https://github.com/Microsoft/react-native-code-push)
+-   [Cordova](https://github.com/microsoft/cordova-plugin-code-push)
+-   [Capacitor](https://github.com/mapiacompany/capacitor-codepush)
+
+## How To Install code-push-server
+
+-   [docker](./docs/install-server-by-docker.md) (recommended)
+-   [manual operation](./docs/install-server.md)
+
+## Default Account and Password
+
+-   account: `admin`
+-   password: `123456`
+
+## Login and Access Token Issuance
+
+```sh
+code-push login https://<codepush-server-url>
 ```
 
-### [web](http://www.code-push.com) 
+-   Run the command above to open the web browser → authenticate → issue an access token
+-   After the token is issued, enter it back into the CLI terminal when prompted
+-   The access token is valid for 30 days.
+-   WEB_UI_WHITELIST_IPS: Comma-separated list of allowed IP addresses
+    e.g. 127.0.0.1,10.0.0.1
+-   WEB_UI_ALLOW: Web UI access is enabled only when this value is set to true
 
-访问：http://www.code-push.com
+## FAQ
 
-### client eg.
-
-[ReactNative CodePushDemo](https://github.com/lisong/code-push-demo-app)
-
-[Cordova CodePushDemo](https://github.com/lisong/code-push-cordova-demo-app)
-
-## HOW TO INSTALL code-push-server
-
-- [docker](https://github.com/lisong/code-push-server/blob/master/docker/README.md) (recommend)
-- [manual operation](https://github.com/lisong/code-push-server/blob/master/docs/README.md)
-
-## DEFAULT ACCOUNT AND PASSWORD
-
-- account: `admin`
-- password: `123456`
-
-## HOW TO USE
-
-- [normal](https://github.com/lisong/code-push-server/blob/master/docs/react-native-code-push.md)
-- [react-native-code-push](https://github.com/Microsoft/react-native-code-push)
-- [code-push](https://github.com/Microsoft/code-push)
-
-
-## ISSUES
-
-[code-push-server normal solution](https://github.com/lisong/code-push-server/issues/135)
-
-[An unknown error occurred](https://github.com/lisong/code-push-server/issues?utf8=%E2%9C%93&q=unknown)
-
-[modify password](https://github.com/lisong/code-push-server/issues/43)
-
-
-# UPDATE TIME LINE
-
-- targetBinaryVersion support
-  - `*` 
-  - `1.2.3`
-  - `1.2`/`1.2.*`
-  - `1.2.3 - 1.2.7`
-  - `>=1.2.3 <1.2.7`
-  - `~1.2.3`
-  - `^1.2.3`
-
-
-## Advance Feature
-
-> use google diff-match-patch calculate text file diff patch
-
-- support iOS and Android
-- use `"react-native-code-push": "git+https://git@github.com/lisong/react-native-code-push.git"` instead `"react-native-code-push": "x.x.x"` in `package.json`
-- change `apps`.`is_use_diff_text` to `1` in mysql codepush database
-
-## License
-MIT License [read](https://github.com/lisong/code-push-server/blob/master/LICENSE)
-
-
+-   [modify password](https://github.com/lisong/code-push-server/issues/43)
+-   [code-push-server normal solution (CN)](https://github.com/lisong/code-push-server/issues/135)
+-   targetBinaryVersion support
+    -   `*`
+    -   `1.2.3`
+    -   `1.2`/`1.2.*`
+    -   `1.2.3 - 1.2.7`
+    -   `>=1.2.3 <1.2.7`
+    -   `~1.2.3`
+    -   `^1.2.3`
