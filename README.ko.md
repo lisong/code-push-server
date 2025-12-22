@@ -89,6 +89,18 @@ Microsoft 공식 CodePush 서비스는 아시아 지역에서 속도가 느린 �
 -   계정: `admin`
 -   비밀번호: `123456`
 
+## 로그인 및 엑세스 토큰 발급하기
+
+```sh
+code-push login https://<codepush-server-url>
+```
+
+-   위 커맨드를 통해 웹브라우저 오픈하기
+-   토큰 발급 후 CLI 터미널에 입력
+-   토큰 유효기간은 약 30일
+-   WEB_UI_WHITELIST_IPS: e.g., 127.0.0.1,10.0.0.1
+-   WEB_UI_ALLOW: true인 경우에만 웹브라우저 UI 노출 허용
+
 ## FAQ
 
 -   [비밀번호 변경](https://github.com/lisong/code-push-server/issues/43)

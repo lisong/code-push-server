@@ -9,7 +9,7 @@ export const indexRouter = express.Router();
 /**
  * 프로덕션 레벨 미들웨어 적용
  * - ipWhitelistOnly: IP주소 검사
- * - webUiGuard: NODE_ENV='production' OR ALLOW_REGISTRATION='true'
+ * - webUiGuard: WEB_UI_ALLOW='true'
  */
 indexRouter.get('/', [ipWhitelistOnly, webUiGuard], (req, res) => {
     res.render('index', { title: 'CodePushServer' });

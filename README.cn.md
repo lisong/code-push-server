@@ -47,6 +47,19 @@
 -   帐号: `admin`
 -   密码: `123456`
 
+## 登录并获取访问令牌
+
+```sh
+code-push login https://<codepush-server-url>
+```
+
+-   运行以上命令后将打开浏览器 → 登录账号 → 生成访问令牌
+-   令牌生成后，请将其输入回 CLI 终端以完成登录
+-   WEB_UI_WHITELIST_IPS：允许访问 Web UI 的 IP 白名单（逗号分隔）
+    例如：127.0.0.1,10.0.0.1
+-   访问令牌的有效期为 30 天。
+-   WEB_UI_ALLOW：仅当该值设置为 true 时，才允许访问 Web UI
+
 ## 常见问题
 
 -   [修改密码](https://github.com/lisong/code-push-server/issues/43)
@@ -59,3 +72,7 @@
     -   `>=1.2.3 <1.2.7`
     -   `~1.2.3`
     -   `^1.2.3`
+
+```
+
+```

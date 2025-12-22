@@ -69,7 +69,7 @@ class AccountManager {
         });
     }
 
-    isExsitAccessKeyName(uid: number, friendlyName: string) {
+    isExistAccessKeyName(uid: number, friendlyName: string) {
         return UserTokens.findOne({
             where: { uid, name: friendlyName },
         });

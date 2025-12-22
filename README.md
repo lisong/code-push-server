@@ -49,6 +49,19 @@ check out the [code-push-cli](https://github.com/shm-open/code-push-cli) which w
 -   account: `admin`
 -   password: `123456`
 
+## Login and Access Token Issuance
+
+```sh
+code-push login https://<codepush-server-url>
+```
+
+-   Run the command above to open the web browser → authenticate → issue an access token
+-   After the token is issued, enter it back into the CLI terminal when prompted
+-   The access token is valid for 30 days.
+-   WEB_UI_WHITELIST_IPS: Comma-separated list of allowed IP addresses
+    e.g. 127.0.0.1,10.0.0.1
+-   WEB_UI_ALLOW: Web UI access is enabled only when this value is set to true
+
 ## FAQ
 
 -   [modify password](https://github.com/lisong/code-push-server/issues/43)

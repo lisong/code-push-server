@@ -12,11 +12,11 @@ export const accessKeysRouter = express.Router();
 accessKeysRouter.get('/', checkToken, (req: Req, res, next) => {
     const { logger } = req;
     const uid = req.users.id;
-    logger.info('try get acceesKeys', { uid });
+    logger.info('try get accessKeys', { uid });
     accountManager
         .getAllAccessKeyByUid(uid)
         .then((accessKeys) => {
-            logger.info('get acceesKeys success', { uid });
+            logger.info('get accessKeys success', { uid });
             res.send({ accessKeys });
         })
         .catch((e) => {
@@ -44,7 +44,8 @@ accessKeysRouter.post(
         const uid = req.users.id;
         const createdBy = _.trim(body.createdBy);
         const friendlyName = _.trim(body.friendlyName);
-        const ttl = parseInt(body.ttl, 10);
+        // TODO: 엑세스토큰 만료일을 수정하고 싶은 경우 tokens.pug 에서 전송되는 ttl을 수정
+        const ttl = parseInt(body.ttl, 10); // 현재 호출부 기본값 30일 = 60*60*24*30*1000
         const description = _.trim(body.description);
         logger.info('try to generate access key', {
             uid,
@@ -52,7 +53,7 @@ accessKeysRouter.post(
             body: JSON.stringify(body),
         });
         return accountManager
-            .isExsitAccessKeyName(uid, friendlyName)
+            .isExistAccessKeyName(uid, friendlyName)
             .then((data) => {
                 if (!_.isEmpty(data)) {
                     throw new AppError(`The access key "${friendlyName}"  already exists.`);
